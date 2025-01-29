@@ -7,6 +7,7 @@ library(tidyr)
 library(data.table)
 library(car)
 library(robomit)
+library(viridis)
 
 datapath = "~/ec_project/data/"
 
@@ -86,24 +87,30 @@ ci_exp3 <- confint(exp3)["ecfin", ]
 # Create a data frame for plotting
 coef_df <- data.frame(
   Model = rep(c("All", "Revenue", "Expenditure"),3),
-  Specification = as.factor(c(rep(c("Panel A", "Panel B", "Panel C"), each = 3))),
+  Specification = as.factor(c(rep(c(1,2,3), each = 3))),
   Coefficient = c(coef_all, coef_rev, coef_exp, coef_all2, coef_all3, coef_rev2, coef_rev3, coef_exp2, coef_exp3),
   CI_Lower = as.numeric(c(ci_all[1], ci_rev[1], ci_exp[1], ci_all2[1], ci_all3[1], ci_rev2[1], ci_rev3[1], ci_exp2[1], ci_exp3[1])),
   CI_Upper = as.numeric(c(ci_all[2], ci_rev[2], ci_exp[2], ci_all2[2], ci_all3[2], ci_rev2[2], ci_rev3[2], ci_exp2[2], ci_exp3[2])
 ))
 
+coef_df$Specification <- factor(coef_df$Specification, 
+                                levels = c(1, 2, 3), 
+                                labels = c("All forecasts", "Exclude Nov EOY", "Exclude All EOY"))
+
 coef_df$mod_spec <- paste0(coef_df$Model,as.character(coef_df$Specification))
 
+# Plot with viridis colors
 ggplot(coef_df, aes(y = Model, x = Coefficient, color = Specification)) +
-  geom_point(position=position_dodge(width=.75)) +
-  geom_errorbar(aes(xmin = CI_Lower, xmax = CI_Upper), width = 0.2, position=position_dodge(width=.75)) +
+  geom_point(position = position_dodge(width = .75)) +
+  geom_errorbar(aes(xmin = CI_Lower, xmax = CI_Upper), width = 0.2, position = position_dodge(width = .75)) +
   geom_vline(xintercept = 0, color = "black", linetype = "solid") +
   labs(title = "",
        x = "Coefficient",
        y = "") +
-  #guides(color="none") +
+  scale_color_viridis_d(option = "viridis") +
   theme_minimal() +
-  theme(legend.position =  "top", legend.title = element_blank())
+  theme(legend.position = "top",
+        legend.title = element_blank())
 
 #Oster sensitivity analysis
 dfp_noEOY$ln_err_sq <- log(dfp_noEOY$err_sq)
