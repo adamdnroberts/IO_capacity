@@ -1,3 +1,7 @@
 raw/
-QNA_10052024164440377.csv
-.Rproj.user
+/data/
+/data/QNA_10052024164440377.csv
+.Rproj.user/
+/.Rhistory
+*.pper
+.Rproj.user/51FC02A3/pcs/source-pane.pper
