@@ -18,10 +18,22 @@ setDT(dfp)
 
 ## RUN THIS STUFF EVERYTIME!
 #exclude variables that are just sums of other variables
- vars_to_exclude <- c("Total current expenditure excluding interest: general government ","Total current expenditure: general government " ,"Total current revenue: general government " ,"Total expenditure excluding interest: general government ","Total expenditure: general government " ,"Total revenue: general government ", "Net lending (+) or net borrowing (-) excluding gross fixed capital formation: general government ", "Net lending (+) or net borrowing (-) excluding interest: general government ", "Net lending (+) or net borrowing (-): general government ", "Other capital expenditure, including capital transfers: general government ", "Social transfers in kind ", "Total expenditure: general government ")
+vars_to_exclude <- c(
+  "Total current expenditure excluding interest: general government ",
+  "Total current expenditure: general government " ,
+  "Total current revenue: general government " ,
+  "Total expenditure excluding interest: general government ",
+  "Total expenditure: general government " ,
+  "Total revenue: general government ", 
+  "Net lending (+) or net borrowing (-) excluding gross fixed capital formation: general government ", 
+  "Net lending (+) or net borrowing (-) excluding interest: general government ", 
+  "Net lending (+) or net borrowing (-): general government ", 
+  "Other capital expenditure, including capital transfers: general government ", 
+  "Social transfers in kind ", 
+  "Total expenditure: general government ")
 
 dfp <- dfp %>%
-   filter(!(title %in% vars_to_exclude))
+  filter(!(title %in% vars_to_exclude))
 
 #make subset datasets
 dfp_noA <- subset(dfp, aeoy == 0)
@@ -32,77 +44,65 @@ dfp_noEOY$gdp_quartile <- ntile(dfp_noEOY$gdp, 4)
 
 
 ##TABLE 1##
-all <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = dfp)
-rev <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp, rev == 1))
-exp <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp, exp == 1))
+# Function to run models
+run_models <- function(data) {
+  list(
+    all = feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py, data = data),
+    rev = feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py, data = data %>% filter(rev == 1)),
+    exp = feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py, data = data %>% filter(exp == 1))
+  )
+}
 
-etable(all,rev,exp, tex=F)
-etable(all,rev,exp, tex=T)
+# Run models
+models <- run_models(dfp)
+models_noA <- run_models(dfp_noA)
+models_noEOY <- run_models(dfp_noEOY)
 
-
-all2 <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = dfp_noA)
-rev2 <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp_noA, rev == 1))
-exp2 <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp_noA, exp == 1))
-
-etable(all2,rev2,exp2, tex = F)
-
-# hist(all2$residuals)
-# all2_special <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp)|country+ysp+title+py, data = dfp_noA)
-# hist(all2_special$residuals) #essentially no change here
-
-all3 <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = dfp_noEOY)
-rev3 <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp_noEOY, rev == 1))
-exp3 <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp_noEOY, exp == 1))
-
-etable(all3,rev3,exp3, tex = F)
+etable(models$all, models$rev, models$exp, tex = FALSE)
+etable(models_noA$all, models_noA$rev, models_noA$exp, tex = FALSE)
+etable(models_noEOY$all, models_noEOY$rev, models_noEOY$exp, tex = FALSE)
 
 #plot
-coef_all <- coef(all)["ecfin"]
-ci_all <- confint(all)["ecfin", ]
+# Extract coefficients and confidence intervals
+extract_coefs <- function(model) {
+  coef <- coef(model)["ecfin"]
+  ci <- confint(model)["ecfin", ]
+  list(coef = coef, ci_lower = ci[1], ci_upper = ci[2])
+}
 
-coef_all2 <- coef(all2)["ecfin"]
-ci_all2 <- confint(all2)["ecfin", ]
+# Combine coefficients into a data frame
+coef_list <- list(
+  all1 = extract_coefs(models$all),
+  rev1 = extract_coefs(models$rev),
+  exp1 = extract_coefs(models$exp),
+  all2 = extract_coefs(models_noA$all),
+  rev2 = extract_coefs(models_noA$rev),
+  exp2 = extract_coefs(models_noA$exp),
+  all3 = extract_coefs(models_noEOY$all),
+  rev3 = extract_coefs(models_noEOY$rev),
+  exp3 = extract_coefs(models_noEOY$exp)
+)
 
-coef_all3 <- coef(all3)["ecfin"]
-ci_all3 <- confint(all3)["ecfin", ]
-
-coef_rev <- coef(rev)["ecfin"]
-ci_rev <- confint(rev)["ecfin", ]
-
-coef_rev2 <- coef(rev2)["ecfin"]
-ci_rev2 <- confint(rev2)["ecfin", ]
-
-coef_rev3 <- coef(rev3)["ecfin"]
-ci_rev3 <- confint(rev3)["ecfin", ]
-
-coef_exp <- coef(exp)["ecfin"]
-ci_exp <- confint(exp)["ecfin", ]
-
-coef_exp2 <- coef(exp2)["ecfin"]
-ci_exp2 <- confint(exp2)["ecfin", ]
-
-coef_exp3 <- coef(exp3)["ecfin"]
-ci_exp3 <- confint(exp3)["ecfin", ]
-
-# Create a data frame for plotting
-coef_df <- data.frame(
-  Model = rep(c("All", "Revenue", "Expenditure"),3),
-  Specification = as.factor(c(rep(c(1,2,3), each = 3))),
-  Coefficient = c(coef_all, coef_rev, coef_exp, coef_all2, coef_all3, coef_rev2, coef_rev3, coef_exp2, coef_exp3),
-  CI_Lower = as.numeric(c(ci_all[1], ci_rev[1], ci_exp[1], ci_all2[1], ci_all3[1], ci_rev2[1], ci_rev3[1], ci_exp2[1], ci_exp3[1])),
-  CI_Upper = as.numeric(c(ci_all[2], ci_rev[2], ci_exp[2], ci_all2[2], ci_all3[2], ci_rev2[2], ci_rev3[2], ci_exp2[2], ci_exp3[2])
-))
+coef_df <- do.call(rbind, lapply(names(coef_list), function(name) {
+  data.frame(
+    Model = rep(strsplit(name, "(?<=\\D)(?=\\d)", perl = TRUE)[[1]][1], 3),
+    Specification = as.factor(rep(as.integer(gsub("\\D", "", name)), 3)),
+    Coefficient = coef_list[[name]]$coef,
+    CI_Lower = as.numeric(coef_list[[name]]$ci_lower),
+    CI_Upper = as.numeric(coef_list[[name]]$ci_upper)
+  )
+}))
 
 coef_df$Specification <- factor(coef_df$Specification, 
                                 levels = c(1, 2, 3), 
                                 labels = c("All forecasts", "Exclude Nov EOY", "Exclude All EOY"))
 
-coef_df$mod_spec <- paste0(coef_df$Model,as.character(coef_df$Specification))
+coef_df$mod_spec <- paste0(coef_df$Model, as.character(coef_df$Specification))
 
 # Plot with viridis colors
 ggplot(coef_df, aes(y = Model, x = Coefficient, color = Specification)) +
-  geom_point(position = position_dodge(width = .75)) +
-  geom_errorbar(aes(xmin = CI_Lower, xmax = CI_Upper), width = 0.2, position = position_dodge(width = .75)) +
+  geom_point(position = position_dodge(width = -.75)) +
+  geom_errorbar(aes(xmin = CI_Lower, xmax = CI_Upper), width = 0.2, position = position_dodge(width = -.75)) +
   geom_vline(xintercept = 0, color = "black", linetype = "solid") +
   labs(title = "",
        x = "Coefficient",
@@ -167,7 +167,7 @@ all <- feols(log(err_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+y
 rev <- feols(log(err_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp, rev == 1))
 exp <- feols(log(err_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title+py, data = subset(dfp, exp == 1))
 
-etable(all,rev,exp, tex=T)
+etable(all,rev,exp, tex=F)
 
 dfp_noA <- subset(dfp, aeoy == 0)
 
