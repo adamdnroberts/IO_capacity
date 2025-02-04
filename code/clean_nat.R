@@ -182,18 +182,17 @@ save(staff_nat,file="~/ec_project/data/staff_nat.Rdata")
 
 #tapply(staff$spring, staff$year, mean)
 
-# ggplot(data=staff) +
-#   geom_col(aes(x=date,y=ECFIN),alpha=0.5) +
-#   #labs(title = "ECFIN employees by nationality, 2018-2020", y = "# employees") +
-#   facet_wrap(~country) +
-#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-# 
-# ggplot(data=staff_nat) +
-#   geom_col(aes(x=ysp,y=ecfin),alpha=0.7) +
-#   #geom_line(aes(x=ysp,y=total_ecfin)) +
-#   geom_vline(xintercept = 2014.75, col = "red") +
-#   facet_wrap(~country) +
-#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+staff_nat_plot <- ggplot(data=staff_nat) +
+  geom_col(aes(x=ysp,y=ecfin)) +
+  #geom_line(aes(x=ysp,y=total_ecfin)) +
+  geom_vline(xintercept = 2014.75, col = "gray", linetype = 2) +
+  facet_wrap(~country) +
+  labs(x = "Period", y = "Staff at ECFIN") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_minimal()
+print(staff_nat_plot)
+
+ggsave(filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/SYP Presentation/images/ECFIN_Nationality_Plot.png", plot = staff_nat_plot, width = 6, height = 4)
 # 
 # ggplot(data=subset(staff, year < 2017 & year > 2013)) +
 #   geom_col(aes(x=date,y=total)) +

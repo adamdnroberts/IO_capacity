@@ -1,6 +1,10 @@
 library(ggplot2)
 library(tidyverse)
 
+#something from stack overflow about 
+#zz <- tabulizer::extract_tables("http://vege1.kan.ynu.ac.jp/traits/PlantTraitAsia.pdf", pages = 2)
+#head(zz[[1]])
+
 fg <- read.csv("C:/Users/adamd/Downloads/function_group_DG.csv")
 
 fg_totals <- tail(fg, n=1)

@@ -96,6 +96,29 @@ dfg <- subset(df_merged_FULL, select=which(!duplicated(names(df_merged_FULL))))
 
 save(dfg,file=paste0(datapath,"final_dataset_euro_plus_guide.RData"))
 
+representation_plot <- ggplot(data=subset(dfpg, !is.na(diff_iv))) +
+  geom_hline(yintercept = 0, col = "blue", linetype = 2) +
+  #geom_point(aes(x=ysp,y=diff_iv)) +
+  geom_line(aes(x=ysp,y=diff_iv)) +
+  facet_wrap(~country) +
+  labs(x = "Period", y = "Representation") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_minimal()
+print(representation_plot)
+
+ggsave(filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/SYP Presentation/images/Representation_Plot.png", plot = representation_plot, width = 8, height = 4)
+
+dfpg$gdppc <- dfpg$gdp/dfpg$pop_int
+
+representation_plot <- ggplot(data=subset(dfpg, !is.na(gdppc))) +
+  geom_point(aes(x=ysp,y=gdppc)) +
+  #geom_vline(xintercept = 2014.75, col = "gray", linetype = 2) +
+  facet_wrap(~country) +
+  labs(x = "Period", y = "Pct from State") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_minimal()
+print(representation_plot)
+
 # # pool predictions dataset (with guide)
 # load(paste0(datapath,"final_dataset_euro_plus_guide.RData"))
 # 
