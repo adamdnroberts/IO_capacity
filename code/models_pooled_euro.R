@@ -306,6 +306,67 @@ exp3 <- feols(log(err_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+
 
 etable(all3,rev3,exp3, tex = T)
 
+# Run models
+models <- run_models(dfpg_robust)
+models_noA <- run_models(dfpg_robust_noA)
+models_noEOY <- run_models(dfpg_robust_noEOY)
+
+etable(models$all, models$rev, models$exp, tex = FALSE)
+etable(models_noA$all, models_noA$rev, models_noA$exp, tex = FALSE)
+etable(models_noEOY$all, models_noEOY$rev, models_noEOY$exp, tex = FALSE)
+
+#plot
+
+# Combine coefficients into a data frame
+coef_list <- list(
+  all1 = extract_coefs(models$all),
+  rev1 = extract_coefs(models$rev),
+  exp1 = extract_coefs(models$exp),
+  all2 = extract_coefs(models_noA$all),
+  rev2 = extract_coefs(models_noA$rev),
+  exp2 = extract_coefs(models_noA$exp),
+  all3 = extract_coefs(models_noEOY$all),
+  rev3 = extract_coefs(models_noEOY$rev),
+  exp3 = extract_coefs(models_noEOY$exp)
+)
+
+coef_df <- do.call(rbind, lapply(names(coef_list), function(name) {
+  data.frame(
+    Model = rep(strsplit(name, "(?<=\\D)(?=\\d)", perl = TRUE)[[1]][1], 3),
+    Specification = as.factor(rep(as.integer(gsub("\\D", "", name)), 3)),
+    Coefficient = coef_list[[name]]$coef,
+    CI_Lower = as.numeric(coef_list[[name]]$ci_lower),
+    CI_Upper = as.numeric(coef_list[[name]]$ci_upper)
+  )
+}))
+
+coef_df$Specification <- factor(coef_df$Specification, 
+                                levels = c(1, 2, 3), 
+                                labels = c("All forecasts", "Exclude Nov EOY", "Exclude All EOY"))
+
+coef_df$mod_spec <- paste0(coef_df$Model, as.character(coef_df$Specification))
+
+coef_df <- coef_df %>%
+  mutate(Model = case_match(Model,
+                            "rev" ~ "Revenue",
+                            "exp" ~ "Expenditure",
+                            "all" ~ "Both"))
+
+Exclude_Belgium_UK <- ggplot(coef_df, aes(y = Model, x = Coefficient, color = Specification)) +
+  geom_point(position = position_dodge(width = -.75), size = 3) +
+  geom_errorbar(aes(xmin = CI_Lower, xmax = CI_Upper), width = 0.2, position = position_dodge(width = -.75)) +
+  geom_vline(xintercept = 0, color = "black", linetype = "solid") +
+  labs(title = "",
+       x = "Coefficient",
+       y = "") +
+  scale_color_grey(start = 0.2, end = 0.8) +
+  theme_minimal() +
+  theme(legend.position = "top",
+        legend.title = element_blank())
+print(Exclude_Belgium_UK)
+
+ggsave(filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/SYP Presentation/images/Exclude_Belgium_UK.png", plot = gdp_results, width = 6, height = 4)
+
 #re-run with belgium/UK excluded
 # Function to run models
 
@@ -374,4 +435,3 @@ Exclude_Belgium_UK <- ggplot(coef_df, aes(y = Model, x = Coefficient, color = Sp
 print(Exclude_Belgium_UK)
 
 ggsave(filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/SYP Presentation/images/Exclude_Belgium_UK.png", plot = gdp_results, width = 6, height = 4)
-
