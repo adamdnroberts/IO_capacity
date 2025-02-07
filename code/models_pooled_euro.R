@@ -30,7 +30,9 @@ vars_to_exclude <- c(
   "Net lending (+) or net borrowing (-): general government ", 
   "Other capital expenditure, including capital transfers: general government ", 
   "Social transfers in kind ", 
-  "Total expenditure: general government ")
+  "Total expenditure: general government ",
+  "Total tax burden excluding imputed social security contributions: total economy ",
+  "Total tax burden including imputed social security contributions: total economy ")
 
 dfpg <- dfpg %>%
   filter(!(title %in% vars_to_exclude))

@@ -43,6 +43,12 @@ o <- feols(log(err2_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+ti
 
 etable(list(m,n,o), tex=F)
 
+#log sq err w/ controls (interpolated population)
+p <- feols(log(err0_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title, data = exp_df)
+q <- feols(log(err1_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title, data = exp_df)
+r <- feols(log(err2_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title, data = exp_df)
+
+etable(list(p,q,r), tex=F)
 
 
 vat_df <- subset(df, vat == 1)
@@ -52,7 +58,7 @@ c <- feols(log(err0_sq) ~ ecfin + pop_int + gdp|country+ysp+title, data = vat_df
 d <- feols(log(err1_sq) ~ ecfin + pop_int + gdp|country+ysp+title, data = vat_df)
 e <- feols(log(err2_sq) ~ ecfin + pop_int + gdp|country+ysp+title, data = vat_df)
 
-etable(list(c,d,e), tex=T)
+etable(list(c,d,e), tex=F)
 
 fixedEffects = fixef(e)
 summary(fixedEffects)
