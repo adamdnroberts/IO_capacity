@@ -2,6 +2,27 @@ library(fixest)
 
 load("~/ec_project/data/final_dataset_euro.Rdata")
 
+vars_to_exclude <- c(
+  "Total current expenditure excluding interest: general government ",
+  "Total current expenditure: general government " ,
+  "Total current revenue: general government " ,
+  "Total expenditure excluding interest: general government ",
+  "Total expenditure: general government " ,
+  "Total revenue: general government ", 
+  "Net lending (+) or net borrowing (-) excluding gross fixed capital formation: general government ", 
+  "Net lending (+) or net borrowing (-) excluding interest: general government ", 
+  "Net lending (+) or net borrowing (-): general government ", 
+  "Other capital expenditure, including capital transfers: general government ", 
+  "Social transfers in kind ", 
+  "Total expenditure: general government ",
+  "Total tax burden excluding imputed social security contributions: total economy ",
+  "Total tax burden including imputed social security contributions: total economy ")
+
+df_old <- df
+
+df <- df %>%
+  filter(!(title %in% vars_to_exclude))
+
 ##MODELS
 
 #log sq err w/ controls
@@ -43,7 +64,7 @@ o <- feols(log(err2_sq) ~ ecfin + log(pop_int) + log(gdp) + gdppc|country+ysp+ti
 
 etable(list(m,n,o), tex=F)
 
-#log sq err w/ controls (interpolated population)
+#log sq err w/ controls (interpolated population + ecfin)
 p <- feols(log(err0_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title, data = exp_df)
 q <- feols(log(err1_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title, data = exp_df)
 r <- feols(log(err2_sq) ~ ecfin_int + log(pop_int) + log(gdp) + gdppc|country+ysp+title, data = exp_df)
