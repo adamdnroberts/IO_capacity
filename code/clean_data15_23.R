@@ -2,7 +2,7 @@
 
 library(dplyr)
 
-s15_full <- read.csv("~/ecb_project/raw/Projections/Spring 2015/AMECO16.TXT", sep=";")
+s15_full <- read.csv("~/ec_project/raw/Projections/Spring 2015/AMECO16.TXT", sep=";")
 s15_full$new2016 <- as.numeric(s15_full$X2016)
 
 s15nt <- data.frame('country' = s15_full$COUNTRY,
@@ -16,7 +16,7 @@ s15nt <- data.frame('country' = s15_full$COUNTRY,
                     'p0' = s15_full$X2015,
                     'p1' = s15_full$new2016)
 
-a15_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2015/AMECO16.TXT", sep=";")
+a15_full <- read.csv("~/ec_project/raw/Projections/Autumn 2015/AMECO16.TXT", sep=";")
 a15_full$new2017 <- as.numeric(a15_full$X2017)
 
 a15nt <- data.frame('country' = a15_full$COUNTRY,
@@ -31,7 +31,7 @@ a15nt <- data.frame('country' = a15_full$COUNTRY,
                     'p1' = a15_full$X2016,
                     'p2' = a15_full$new2017)
 
-s16_full <- read.csv("~/ecb_project/raw/Projections/Spring 2016/AMECO16.TXT", sep=";")
+s16_full <- read.csv("~/ec_project/raw/Projections/Spring 2016/AMECO16.TXT", sep=";")
 s16_full$new2017 <- as.numeric(s16_full$X2017)
 
 s16nt <- data.frame('country' = s16_full$COUNTRY,
@@ -45,7 +45,7 @@ s16nt <- data.frame('country' = s16_full$COUNTRY,
                     'p0' = s16_full$X2016,
                     'p1' = s16_full$new2017)
 
-a16_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2016/AMECO16.TXT", sep=";")
+a16_full <- read.csv("~/ec_project/raw/Projections/Autumn 2016/AMECO16.TXT", sep=";")
 a16_full$new2018 <- as.numeric(a16_full$X2018)
 
 a16nt <- data.frame('country' = a16_full$COUNTRY,
@@ -60,7 +60,7 @@ a16nt <- data.frame('country' = a16_full$COUNTRY,
                     'p1' = a16_full$X2017,
                     'p2' = a16_full$new2018)
 
-s17_full <- read.csv("~/ecb_project/raw/Projections/Spring 2017/AMECO16.TXT", sep=";")
+s17_full <- read.csv("~/ec_project/raw/Projections/Spring 2017/AMECO16.TXT", sep=";")
 s17_full$new2018 <- as.numeric(s17_full$X2018)
 
 s17nt <- data.frame('country' = s17_full$COUNTRY,
@@ -74,7 +74,7 @@ s17nt <- data.frame('country' = s17_full$COUNTRY,
                     'p0' = s17_full$X2017,
                     'p1' = s17_full$new2018)
 
-a17_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2017/AMECO16.TXT", sep=";")
+a17_full <- read.csv("~/ec_project/raw/Projections/Autumn 2017/AMECO16.TXT", sep=";")
 a17_full$new2019 <- as.numeric(a17_full$X2019)
 
 a17nt <- data.frame('country' = a17_full$COUNTRY,
@@ -89,7 +89,7 @@ a17nt <- data.frame('country' = a17_full$COUNTRY,
                     'p1' = a17_full$X2018,
                     'p2' = a17_full$new2019)
 
-s18_full <- read.csv("~/ecb_project/raw/Projections/Spring 2018/AMECO16.TXT", sep=";")
+s18_full <- read.csv("~/ec_project/raw/Projections/Spring 2018/AMECO16.TXT", sep=";")
 s18_full$new2019 <- as.numeric(s18_full$X2019)
 
 s18nt <- data.frame('country' = s18_full$COUNTRY,
@@ -103,7 +103,7 @@ s18nt <- data.frame('country' = s18_full$COUNTRY,
                     'p0' = s18_full$X2018,
                     'p1' = s18_full$new2019)
 
-a18_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2018/AMECO16.TXT", sep=";")
+a18_full <- read.csv("~/ec_project/raw/Projections/Autumn 2018/AMECO16.TXT", sep=";")
 a18_full$new2020 <- as.numeric(a18_full$X2020)
 
 a18nt <- data.frame('country' = a18_full$COUNTRY,
@@ -118,7 +118,7 @@ a18nt <- data.frame('country' = a18_full$COUNTRY,
                     'p1' = a18_full$X2019,
                     'p2' = a18_full$new2020)
 
-s19_full <- read.csv("~/ecb_project/raw/Projections/Spring 2019/AMECO16.TXT", sep=";")
+s19_full <- read.csv("~/ec_project/raw/Projections/Spring 2019/AMECO16.TXT", sep=";")
 s19_full$new2020 <- as.numeric(s19_full$X2020)
 
 s19nt <- data.frame('country' = s19_full$COUNTRY,
@@ -132,7 +132,7 @@ s19nt <- data.frame('country' = s19_full$COUNTRY,
                     'p0' = s19_full$X2019,
                     'p1' = s19_full$new2020)
 
-a19_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2019/AMECO16.TXT", sep=";")
+a19_full <- read.csv("~/ec_project/raw/Projections/Autumn 2019/AMECO16.TXT", sep=";")
 a19_full$new2021 <- as.numeric(a19_full$X2021)
 
 a19nt <- data.frame('country' = a19_full$COUNTRY,
@@ -147,7 +147,7 @@ a19nt <- data.frame('country' = a19_full$COUNTRY,
                     'p1' = a19_full$X2020,
                     'p2' = a19_full$new2021)
 
-s20_full <- read.csv("~/ecb_project/raw/Projections/Spring 2020/AMECO16.TXT", sep=";")
+s20_full <- read.csv("~/ec_project/raw/Projections/Spring 2020/AMECO16.TXT", sep=";")
 s20_full$new2021 <- as.numeric(s20_full$X2021)
 
 s20nt <- data.frame('country' = s20_full$COUNTRY,
@@ -161,7 +161,7 @@ s20nt <- data.frame('country' = s20_full$COUNTRY,
                     'p0' = s20_full$X2020,
                     'p1' = s20_full$new2021)
 
-a20_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2020/AMECO16.TXT", sep=";")
+a20_full <- read.csv("~/ec_project/raw/Projections/Autumn 2020/AMECO16.TXT", sep=";")
 a20_full$new2022 <- as.numeric(a20_full$X2022)
 
 a20nt <- data.frame('country' = a20_full$COUNTRY,
@@ -176,7 +176,7 @@ a20nt <- data.frame('country' = a20_full$COUNTRY,
                     'p1' = a20_full$X2021,
                     'p2' = a20_full$new2022)
 
-s21_full <- read.csv("~/ecb_project/raw/Projections/Spring 2021/AMECO16.TXT", sep=";")
+s21_full <- read.csv("~/ec_project/raw/Projections/Spring 2021/AMECO16.TXT", sep=";")
 s21_full$new2022 <- as.numeric(s21_full$X2022)
 
 s21nt <- data.frame('country' = s21_full$COUNTRY,
@@ -190,7 +190,7 @@ s21nt <- data.frame('country' = s21_full$COUNTRY,
                     'p0' = s21_full$X2021,
                     'p1' = s21_full$new2022)
 
-a21_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2021/AMECO16.TXT", sep=";")
+a21_full <- read.csv("~/ec_project/raw/Projections/Autumn 2021/AMECO16.TXT", sep=";")
 a21_full$new2023 <- as.numeric(a21_full$X2023)
 
 a21nt <- data.frame('country' = a21_full$COUNTRY,
@@ -205,7 +205,7 @@ a21nt <- data.frame('country' = a21_full$COUNTRY,
                     'p1' = a21_full$X2022,
                     'p2' = a21_full$new2023)
 
-s22_full <- read.csv("~/ecb_project/raw/Projections/Spring 2022/AMECO16.TXT", sep=";")
+s22_full <- read.csv("~/ec_project/raw/Projections/Spring 2022/AMECO16.TXT", sep=";")
 s22_full$new2023 <- as.numeric(s22_full$X2023)
 
 s22nt <- data.frame('country' = s22_full$COUNTRY,
@@ -219,7 +219,7 @@ s22nt <- data.frame('country' = s22_full$COUNTRY,
                     'p0' = s22_full$X2022,
                     'p1' = s22_full$new2023)
 
-a22_full <- read.csv("~/ecb_project/raw/Projections/Autumn 2022/AMECO16.TXT", sep=";")
+a22_full <- read.csv("~/ec_project/raw/Projections/Autumn 2022/AMECO16.TXT", sep=";")
 a22_full$new2024 <- as.numeric(a22_full$X2024)
 
 a22nt <- data.frame('country' = a22_full$COUNTRY,
@@ -236,7 +236,7 @@ a22nt <- data.frame('country' = a22_full$COUNTRY,
 
 a22nt$title <- replace(a22nt$title, a22nt$title == "Total current expenditure: general government :- ESA 2010 ", "Total expenditure: general government :- ESA 1995 (Including one-off proceeds (treated as negative expenditure) relative to the allocation of mobile phone licences (UMTS))")
 
-s23_full <- read.delim("~/ecb_project/raw/Projections/Spring 2023/AMECO16.TXT")
+s23_full <- read.delim("~/ec_project/raw/Projections/Spring 2023/AMECO16.TXT")
 s23_full$new2024 <- as.numeric(s23_full$X2024)
 
 s23nt <- data.frame('country' = s23_full$COUNTRY,
@@ -455,4 +455,4 @@ summary(test)
 
 full_dataset15_23 <- bind_rows(y15, y16, y17, y18, y19, y20, y21, y22)
 
-save(full_dataset15_23,file="~/ecb_project/data/full_dataset15_23.Rdata")
+save(full_dataset15_23,file="~/ec_project/data/full_dataset15_23.Rdata")

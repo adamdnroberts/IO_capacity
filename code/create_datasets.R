@@ -8,7 +8,7 @@ library(countrycode)
 load("~/ec_project/data/full_dataset11_14.Rdata")
 load("~/ec_project/data/full_dataset15_23.Rdata")
 
-df_full <- rbind(full_dataset11_14, full_dataset15_23)
+df_full <- dplyr::bind_rows(full_dataset11_14, full_dataset15_23)
 
 df_full$ysp <- df_full$year + 0.5*(1 - df_full$spring)
 
