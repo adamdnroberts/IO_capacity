@@ -281,10 +281,10 @@ iplot(
 legend(
   "topright",
   col = grayscale_colors,
-  pch = c(20, 17, 15),
+  pch = c(20, 15),
   lwd = 1,
   lty = 1,
-  legend = c("All", "Revenue", "Expenditure"),
+  legend = c("Revenue", "Expenditure"),
   cex = 1.5
 )
 dev.off()
