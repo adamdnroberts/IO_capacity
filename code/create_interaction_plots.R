@@ -1,12 +1,10 @@
 library(ggplot2)
 library(fixest)
-library(stargazer)
 library(dplyr)
 library(plyr)
 library(tidyr)
 library(data.table)
 library(car)
-library(robomit)
 library(viridis)
 library(purrr)
 library(stringr)
@@ -70,7 +68,17 @@ exp_gdp <- feols(
   data = subset(dfpg_noA, exp == 1)
 )
 
-etable(rev_gdp, exp_gdp, tex = F)
+# Test whether the interaction terms are equal
+linearHypothesis(
+  rev_gdp,
+  c(
+    "gdp_quartile::3:ecfin = gdp_quartile::1:ecfin",
+    "gdp_quartile::3:ecfin = gdp_quartile::2:ecfin",
+    "gdp_quartile::4:ecfin = gdp_quartile::1:ecfin",
+    "gdp_quartile::4:ecfin = gdp_quartile::2:ecfin"
+  )
+)
+
 
 #plot
 # Extract coefficients and confidence intervals

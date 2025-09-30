@@ -298,33 +298,3 @@ staff_nat <- staff_nat %>%
 staff_nat$ecfin_spline[staff_nat$ecfin_spline < 0] <- 0
 
 save(staff_nat, file = "~/ec_project/data/staff_nat.Rdata")
-
-#tapply(staff$spring, staff$year, mean)
-
-# ggplot(data=subset(staff, year < 2017 & year > 2013)) +
-#   geom_col(aes(x=date,y=total)) +
-#   facet_wrap(~country) +
-#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-#
-# ggplot(data=subset(staff_nat_avg, ysp < 2017 & year > 2013)) +
-#   geom_col(aes(x=ysp,y=total)) +
-#   geom_col(aes(x=ysp,y=total_commission), alpha = 0.5, fill = "blue") +
-#   facet_wrap(~country) +
-#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-# ggplot(data=staff_nat_avg) +
-#   geom_col(aes(x=ysp,y=rate_commission),alpha=0.5) +
-#   geom_col(aes(x=ysp,y=rate_ecfin),alpha=0.5, color = "blue") +
-#   facet_wrap(~country) +
-#   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
-
-# ggplot(data=staff_final) +
-#   geom_col(aes(x=ysp,y=ecfin_int),alpha=0.5) +
-#   facet_wrap(~country) +
-#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-# ggplot(staff_nat) +
-#   geom_col(aes(x=ysp,y=ecfin)) +
-#   geom_col(aes(x=ysp,y=ecfin_int), alpha=0.6, color = "red") +
-#   geom_point(aes(x=ysp,y=ecfin_spline),alpha=0.6, color = "blue") +
-#   facet_wrap(~country)

@@ -16,7 +16,6 @@ datapath = "~/ec_project/data/"
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
-## RUN THIS STUFF EVERYTIME!
 #exclude variables that are just sums of other variables
 vars_to_exclude <- c(
   "Total current expenditure excluding interest: general government ",

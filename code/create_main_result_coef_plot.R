@@ -11,35 +11,8 @@ library(viridis)
 
 datapath = "~/ec_project/data/"
 
-# pooled predictions
-
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
-
-## RUN THIS STUFF EVERYTIME!
-#exclude variables that are just sums of other variables
-vars_to_exclude <- c(
-  "Total current expenditure excluding interest: general government ",
-  "Total current expenditure: general government ",
-  "Total current revenue: general government ",
-  "Total expenditure excluding interest: general government ",
-  "Total expenditure: general government ",
-  "Total revenue: general government ",
-  "Net lending (+) or net borrowing (-) excluding gross fixed capital formation: general government ",
-  "Net lending (+) or net borrowing (-) excluding interest: general government ",
-  "Net lending (+) or net borrowing (-): general government ",
-  "Other capital expenditure, including capital transfers: general government ",
-  "Social transfers in kind ",
-  "Total expenditure: general government ",
-  "Total tax burden excluding imputed social security contributions: total economy ",
-  "Total tax burden including imputed social security contributions: total economy "
-)
-
-dfpg <- dfpg %>%
-  filter(!(title %in% vars_to_exclude)) %>%
-  mutate(
-    gdppc = gdp / pop_int
-  )
 
 #make subset datasets
 dfpg_noA <- dfpg %>% filter(aeoy == 0)
