@@ -14,7 +14,7 @@ representation_plot <- ggplot(data = subset(dfpg, !is.na(diff_iv))) +
 print(representation_plot)
 
 ggsave(
-  filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/SYP Presentation/images/Representation_Plot.png",
+  filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity_Online_Appendix/images/Representation_Plot.png",
   plot = representation_plot,
   width = 8,
   height = 4
