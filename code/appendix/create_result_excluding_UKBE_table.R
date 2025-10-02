@@ -11,8 +11,11 @@ datapath = "~/ec_project/data/"
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
-dfpg_noA <- dfpg %>% filter(aeoy == 0)
-dfpg_noEOY <- dfpg %>% filter(py != 0)
+df_exclude_UKBE <- dfpg %>%
+  filter(country != "Belgium" & country != "United Kingdom")
+
+df_exclude_UKBE_noA <- df_exclude_UKBE %>% filter(aeoy == 0)
+df_exclude_UKBE_noEOY <- df_exclude_UKBE %>% filter(py != 0)
 
 run_models <- function(data) {
   list(
@@ -30,14 +33,14 @@ run_models <- function(data) {
 }
 
 # Run models
-models <- run_models(dfpg)
-models_noA <- run_models(dfpg_noA)
-models_noEOY <- run_models(dfpg_noEOY)
+models <- run_models(df_exclude_UKBE)
+models_noA <- run_models(df_exclude_UKBE_noA)
+models_noEOY <- run_models(df_exclude_UKBE_noEOY)
 
 etable(
   models$rev,
   models$exp,
-  tex = FALSE,
+  tex = T,
   digits = 3,
   digits.stats = 3
 )
@@ -45,7 +48,7 @@ etable(
 etable(
   models_noA$rev,
   models_noA$exp,
-  tex = FALSE,
+  tex = T,
   digits = 3,
   digits.stats = 3
 )
@@ -53,7 +56,7 @@ etable(
 etable(
   models_noEOY$rev,
   models_noEOY$exp,
-  tex = FALSE,
+  tex = T,
   digits = 3,
   digits.stats = 3
 )
