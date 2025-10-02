@@ -4,3 +4,5 @@ raw/
 data/
 data/QNA_10052024164440377.csv
 code/additional_analysis
+ec_project.Rproj
+.RData
