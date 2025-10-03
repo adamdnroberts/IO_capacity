@@ -244,4 +244,8 @@ staff$X. <- NULL
 staff$c.NA_real_..NA_real_..NA_real_..NA_real_..NA_real_..NA_real_.. <- NULL
 
 save(staff, file = "~/ec_project/data/Commission_nationalities.Rdata")
-write.csv(staff, file = "~/ec_project/data/Commission_nationalities.csv")
+write.csv(
+  staff,
+  file = "~/ec_project/data/Commission_nationalities.csv",
+  row.names = FALSE
+)

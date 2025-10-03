@@ -50,26 +50,7 @@ df <- df_full %>%
   dplyr::rename(pop = SP.POP.TOTL) %>%
   mutate(country = if_else(country == "Slovak Republic", "Slovakia", country))
 
-# Load and prepare 2023 Eurostat data
-eurostat_pop <- read.csv("~/ec_project/raw/estat_tps00001.csv")
-
-es23 <- eurostat_pop %>%
-  transmute(
-    iso2c = geo.TIME_PERIOD,
-    date = 2023,
-    pop = as.numeric(X2023)
-  )
-
-# Merge 2023 data with country codes
-ccs <- df %>%
-  distinct(iso2c, iso3c, country)
-
-pop23 <- es23 %>%
-  inner_join(ccs, by = "iso2c") %>%
-  filter(!is.na(country))
-
-# Combine all years
-pop <- bind_rows(df, pop23) %>%
+pop <- df %>%
   filter(!is.na(date)) %>%
   mutate(ysp = as.numeric(date), pop = as.numeric(pop))
 

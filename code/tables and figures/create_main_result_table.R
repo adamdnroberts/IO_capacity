@@ -37,7 +37,7 @@ models_noEOY <- run_models(dfpg_noEOY)
 etable(
   models$rev,
   models$exp,
-  tex = FALSE,
+  tex = TRUE,
   digits = 3,
   digits.stats = 3
 )
@@ -45,7 +45,7 @@ etable(
 etable(
   models_noA$rev,
   models_noA$exp,
-  tex = FALSE,
+  tex = TRUE,
   digits = 3,
   digits.stats = 3
 )
@@ -53,7 +53,7 @@ etable(
 etable(
   models_noEOY$rev,
   models_noEOY$exp,
-  tex = FALSE,
+  tex = TRUE,
   digits = 3,
   digits.stats = 3
 )

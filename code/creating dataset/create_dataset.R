@@ -220,3 +220,8 @@ save(
   dfpg,
   file = paste0("~/ec_project/data/final_dataset_euro_pooled_plus_guide.Rdata")
 )
+
+write.csv(
+  dfpg,
+  file = paste0("~/ec_project/data/EU_Capacity_dataset.csv")
+)

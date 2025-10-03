@@ -1,19 +1,14 @@
-library(ggplot2)
-library(fixest)
-library(stargazer)
-library(dplyr)
-library(plyr)
-library(tidyr)
 library(data.table)
-library(car)
+library(fixest)
+library(dplyr)
 
 datapath = "~/ec_project/data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
+#make subset datasets
 dfpg_noA <- subset(dfpg, aeoy == 0)
-
 
 all2 <- feols(
   log(err_sq) ~
@@ -22,58 +17,55 @@ all2 <- feols(
 )
 
 true_coef <- all2$coefficients[1]
+true_r2 <- r2(all2, type = "r2")
+true_wr2 <- r2(all2, type = "wr2")
 
 #prepare df for randomizations
-sn_full <- subset(dfpg_noEOY, !is.na(ecfin))
+sn_full <- subset(dfpg_noA, !is.na(ecfin))
 sn_dupes <- subset(sn_full, select = c(ysp, country, ecfin))
 sn <- sn_dupes[!duplicated(sn_dupes)]
 sn <- dplyr::rename(sn, ecfin_rand = ecfin)
 
 countrynames <- unique(sn$country)
 
-
-handlers(global = TRUE)
-handlers("txtprogressbar") # simple console bar
+#randomize
+r2 <- list()
+wr2 <- list()
+coef <- list()
 
 set.seed(42)
-n_iter <- 10000
-coef <- numeric(n_iter)
 
-dfp_noEOY <- dfp_noEOY %>%
-  mutate(
-    log_pop = log(pop_int),
-    log_gdp = log(gdp),
-    gdppc = gdp / pop_int
+start.time <- Sys.time()
+for (i in 1:10000) {
+  dict <- data.frame(
+    OldValue = countrynames,
+    NewValue = sample(countrynames)
   )
 
-plan(multisession, workers = 4)
+  df <- sn %>%
+    left_join(dict, by = c("country" = "OldValue")) %>%
+    mutate(country = NewValue) %>%
+    select(-NewValue)
 
-with_progress({
-  p <- progressor(along = 1:n_iter)
+  dfpg_rand <- dfpg_noA %>%
+    left_join(df, by = c("country", "ysp"))
 
-  coef <- future_sapply(1:n_iter, function(i) {
-    perm <- sample(countrynames)
-    dict <- setNames(perm, countrynames)
+  rand <- feols(
+    log(err_sq) ~
+      ecfin_rand + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+    data = dfpg_rand,
+    notes = FALSE
+  )
 
-    df <- sn
-    df$country <- dict[df$country]
-
-    dfp_rand <- merge(dfp_noEOY, df, by = c("country", "ysp"), all.x = TRUE)
-
-    rand <- feols(
-      log(err_sq) ~
-        ecfin_rand + log_pop + log_gdp + gdppc | country + ysp + title + py,
-      data = dfp_rand,
-      notes = FALSE
-    )
-
-    p() # update progress
-    rand$coefficients[1]
-  })
-})
-
-print("All iterations finished ✅")
-
+  r2[i] <- r2(rand, type = "r2")
+  wr2[i] <- r2(rand, type = "wr2")
+  coef[i] <- rand$coefficients[1]
+  if (i %% 100 == 0) {
+    print(i / 10000)
+  }
+}
+end.time <- Sys.time()
+end.time - start.time
 
 # Open a PDF device
 pdf(
