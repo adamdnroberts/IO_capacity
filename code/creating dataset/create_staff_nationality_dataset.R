@@ -242,6 +242,18 @@ staff[is.na(staff)] <- 0
 
 staff$X. <- NULL
 staff$c.NA_real_..NA_real_..NA_real_..NA_real_..NA_real_..NA_real_.. <- NULL
+staff$c2 <- NULL
+staff$IDEA[staff$year <= 2013] <- staff$BEPA[staff$year <= 2013]
+staff$BEPA <- NULL
+staff$IDEA[staff$year <= 2019 & staff$year >= 2014] <- staff$EPSC[
+  staff$year <= 2019 & staff$year >= 2014
+]
+staff$EPSC <- NULL
+staff$NEAR[staff$year <= 2014] <- staff$ELARG[staff$year <= 2014]
+staff$ELARG <- NULL
+staff$SANTE[staff$year <= 2014] <- staff$SANCO[staff$year <= 2014]
+staff$SANCO <- NULL
+staff$Total <- NULL
 
 save(staff, file = "~/ec_project/data/Commission_nationalities.Rdata")
 write.csv(
