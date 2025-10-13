@@ -74,7 +74,6 @@ linearHypothesis(
   c(
     "gdp_quartile::3:ecfin = gdp_quartile::1:ecfin",
     "gdp_quartile::3:ecfin = gdp_quartile::2:ecfin",
-    "gdp_quartile::4:ecfin = gdp_quartile::1:ecfin",
     "gdp_quartile::4:ecfin = gdp_quartile::2:ecfin"
   )
 )
@@ -131,7 +130,7 @@ coef_df_gdp <- coef_df_gdp %>%
 
 #save(coef_df, file = "~/ec_project/data/interaction_results_coef_df.Rdata")
 
-interaction_result_gdp <- ggplot(
+interaction_results_gdp <- ggplot(
   subset(coef_df_gdp, Model != "Both"),
   aes(x = q, y = coef, color = Model)
 ) +
