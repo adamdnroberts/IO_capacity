@@ -14,6 +14,25 @@ datapath = "~/ec_project/data/"
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
+# Exclude titles that are components of or near-duplicates of other titles,
+# to avoid double-counting and correlated errors across observations.
+overlapping_titles <- c(
+  "Actual social contributions received: general government ",
+  "Imputed social contributions: general government ",
+  "Social contributions received: general government ",
+  "Interest: general government ",
+  "Collective consumption expenditure ",
+  "Compensation of employees: general government ",
+  "Intermediate consumption: general government ",
+  "Social transfers in kind supplied to households via market producers: general government ",
+  "Current taxes on income and wealth (direct taxes): general government ",
+  "Taxes linked to imports and production (indirect taxes): general government ",
+  "Capital taxes: general government ",
+  "Other current revenue: general government ",
+  "Net saving: general government "
+)
+dfpg <- dfpg %>% filter(!title %in% overlapping_titles)
+
 #make subset datasets
 dfpg_noA <- dfpg %>% filter(aeoy == 0)
 dfpg_noEOY <- dfpg %>% filter(py != 0)
@@ -101,7 +120,12 @@ coef_df <- coef_df %>%
       Model,
       "rev" ~ "Revenue",
       "exp" ~ "Expenditure"
-    )
+    ),
+    Coefficient  = Coefficient  / 2,
+    CI_Lower90   = CI_Lower90   / 2,
+    CI_Upper90   = CI_Upper90   / 2,
+    CI_Lower95   = CI_Lower95   / 2,
+    CI_Upper95   = CI_Upper95   / 2
   )
 
 main_results <- ggplot(
@@ -125,7 +149,7 @@ main_results <- ggplot(
   ) +
   geom_point(position = position_dodge(width = -.75), size = 3) +
   geom_vline(xintercept = 0, color = "black", linetype = "solid") +
-  labs(title = "", x = "Coefficient", y = "") +
+  labs(title = "", x = "% Change in Forecast Error", y = "") +
   scale_color_grey(start = 0.2, end = 0.8) +
   theme_minimal() +
   theme(legend.position = "top", legend.title = element_blank())

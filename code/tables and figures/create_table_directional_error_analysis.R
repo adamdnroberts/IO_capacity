@@ -1,10 +1,6 @@
-library(ggplot2)
-library(fixest)
-library(stargazer)
-library(dplyr)
-library(plyr)
-library(tidyr)
 library(data.table)
+library(dplyr)
+library(fixest)
 
 datapath = "~/ec_project/data/"
 
@@ -30,18 +26,20 @@ overlapping_titles <- c(
 )
 dfpg <- dfpg %>% filter(!title %in% overlapping_titles)
 
+dfpg$pos_error <- as.numeric(dfpg$err > 0)
+
 dfpg_noA <- dfpg %>% filter(aeoy == 0)
 dfpg_noEOY <- dfpg %>% filter(py != 0)
 
 run_models <- function(data) {
   list(
     rev = feols(
-      log(err_sq) ~
+      pos_error ~
         ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
       data = data %>% filter(rev == 1)
     ),
     exp = feols(
-      log(err_sq) ~
+      pos_error ~
         ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
       data = data %>% filter(exp == 1)
     )

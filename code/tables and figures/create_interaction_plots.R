@@ -19,6 +19,7 @@ setDT(dfpg)
 ## RUN THIS STUFF EVERYTIME!
 #exclude variables that are just sums of other variables
 vars_to_exclude <- c(
+  # Top-level aggregates (sums of other variables)
   "Total current expenditure excluding interest: general government ",
   "Total current expenditure: general government ",
   "Total current revenue: general government ",
@@ -30,9 +31,22 @@ vars_to_exclude <- c(
   "Net lending (+) or net borrowing (-): general government ",
   "Other capital expenditure, including capital transfers: general government ",
   "Social transfers in kind ",
-  "Total expenditure: general government ",
   "Total tax burden excluding imputed social security contributions: total economy ",
-  "Total tax burden including imputed social security contributions: total economy "
+  "Total tax burden including imputed social security contributions: total economy ",
+  # Components of or near-duplicates of other titles
+  "Actual social contributions received: general government ",
+  "Imputed social contributions: general government ",
+  "Social contributions received: general government ",
+  "Interest: general government ",
+  "Collective consumption expenditure ",
+  "Compensation of employees: general government ",
+  "Intermediate consumption: general government ",
+  "Social transfers in kind supplied to households via market producers: general government ",
+  "Current taxes on income and wealth (direct taxes): general government ",
+  "Taxes linked to imports and production (indirect taxes): general government ",
+  "Capital taxes: general government ",
+  "Other current revenue: general government ",
+  "Net saving: general government "
 )
 
 dfpg <- dfpg %>%

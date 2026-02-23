@@ -255,6 +255,8 @@ staff$SANTE[staff$year <= 2014] <- staff$SANCO[staff$year <= 2014]
 staff$SANCO <- NULL
 staff$Total <- NULL
 
+staff <- staff %>% dplyr::rename(COLLEGE = COLLÈGE)
+
 save(staff, file = "~/ec_project/data/Commission_nationalities.Rdata")
 write.csv(
   staff,
