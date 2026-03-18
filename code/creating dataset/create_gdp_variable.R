@@ -3,9 +3,9 @@ library(tidyr)
 library(zoo)
 
 #gdp, millions of euro
-estat_gdp <- read.csv("~/ec_project/raw/namq_10_gdp_page_linear.csv")
+estat_gdp <- read.csv("~/EU_capacity/raw/namq_10_gdp_page_linear.csv")
 
-iso_alpha2 <- read.csv("~/ec_project/raw/Staff/iso_alpha2.csv")
+iso_alpha2 <- read.csv("~/EU_capacity/raw/Staff/iso_alpha2.csv")
 
 gdp_iso <- merge(estat_gdp, iso_alpha2, by.x = "geo", by.y = "code")
 
@@ -30,4 +30,4 @@ ggplot(data = gdp) +
   geom_line(aes(x = ysp, y = gdp)) +
   facet_wrap(~country)
 
-write.csv(gdp, file = "~/ec_project/data/gdp.csv", row.names = FALSE)
+write.csv(gdp, file = "~/EU_capacity/data/gdp.csv", row.names = FALSE)

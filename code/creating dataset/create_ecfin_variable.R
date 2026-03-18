@@ -1,7 +1,7 @@
 library(dplyr)
 library(zoo)
 
-load("~/ec_project/data/Commission_nationalities.Rdata")
+load("~/EU_capacity/data/Commission_nationalities.Rdata")
 
 staff_nat_avg <- staff %>%
   group_by(country, spring, year) %>%
@@ -52,4 +52,4 @@ staff_nat <- staff_nat %>%
 
 staff_nat$ecfin_spline[staff_nat$ecfin_spline < 0] <- 0
 
-save(staff_nat, file = "~/ec_project/data/staff_nat.Rdata")
+save(staff_nat, file = "~/EU_capacity/data/staff_nat.Rdata")

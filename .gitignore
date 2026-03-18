@@ -3,5 +3,6 @@
 raw/
 data/old_data
 code/additional_analysis
-ec_project.Rproj
+EU_capacity.Rproj
 .RData
+overleaf/

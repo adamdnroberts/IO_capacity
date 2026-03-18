@@ -1,6 +1,6 @@
 library(ggplot2)
 
-load("~/ec_project/data/Commission_nationalities.Rdata")
+load("~/EU_capacity/data/Commission_nationalities.Rdata")
 
 staff_nat_plot <- ggplot(data = staff_nat) +
   geom_col(aes(x = ysp, y = ecfin)) +

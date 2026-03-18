@@ -9,7 +9,7 @@ library(car)
 library(robomit)
 library(viridis)
 
-datapath = "~/ec_project/data/"
+datapath = "~/EU_Capacity/data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -121,11 +121,11 @@ coef_df <- coef_df %>%
       "rev" ~ "Revenue",
       "exp" ~ "Expenditure"
     ),
-    Coefficient  = Coefficient  / 2,
-    CI_Lower90   = CI_Lower90   / 2,
-    CI_Upper90   = CI_Upper90   / 2,
-    CI_Lower95   = CI_Lower95   / 2,
-    CI_Upper95   = CI_Upper95   / 2
+    Coefficient = 100 * (exp(Coefficient / 2) - 1),
+    CI_Lower90 = 100 * (exp(CI_Lower90 / 2) - 1),
+    CI_Upper90 = 100 * (exp(CI_Upper90 / 2) - 1),
+    CI_Lower95 = 100 * (exp(CI_Lower95 / 2) - 1),
+    CI_Upper95 = 100 * (exp(CI_Upper95 / 2) - 1)
   )
 
 main_results <- ggplot(
@@ -150,6 +150,7 @@ main_results <- ggplot(
   geom_point(position = position_dodge(width = -.75), size = 3) +
   geom_vline(xintercept = 0, color = "black", linetype = "solid") +
   labs(title = "", x = "% Change in Forecast Error", y = "") +
+  scale_x_continuous(labels = function(x) paste0(x, "%")) +
   scale_color_grey(start = 0.2, end = 0.8) +
   theme_minimal() +
   theme(legend.position = "top", legend.title = element_blank())

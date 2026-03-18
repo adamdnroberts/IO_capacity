@@ -3,7 +3,7 @@
 library(dplyr)
 
 s11_full <- read.csv(
-  "~/ec_project/raw/Projections/Spring 2011/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Spring 2011/AMECO16.TXT",
   sep = ";"
 )
 s11_full$new2012 <- as.numeric(s11_full$X2012)
@@ -23,7 +23,7 @@ s11nt <- data.frame(
 )
 
 a11_full <- read.csv(
-  "~/ec_project/raw/Projections/Autumn 2011/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Autumn 2011/AMECO16.TXT",
   sep = ";"
 )
 a11_full$new2013 <- as.numeric(a11_full$X2013)
@@ -43,7 +43,7 @@ a11nt <- data.frame(
 )
 
 s12_full <- read.csv(
-  "~/ec_project/raw/Projections/Spring 2012/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Spring 2012/AMECO16.TXT",
   sep = ";"
 )
 s12_full$new2013 <- as.numeric(s12_full$X2013)
@@ -62,7 +62,7 @@ s12nt <- data.frame(
 )
 
 a12_full <- read.csv(
-  "~/ec_project/raw/Projections/Autumn 2012/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Autumn 2012/AMECO16.TXT",
   sep = ";"
 )
 a12_full$new2013 <- as.numeric(a12_full$X2013)
@@ -82,7 +82,7 @@ a12nt <- data.frame(
 
 #Spring 2013
 s13_full <- read.csv(
-  "~/ec_project/raw/Projections/Spring 2013/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Spring 2013/AMECO16.TXT",
   sep = ";"
 )
 s13_full$new2013 <- as.numeric(s13_full$X2013)
@@ -100,7 +100,7 @@ s13nt <- data.frame(
 )
 
 a13_full <- read.csv(
-  "~/ec_project/raw/Projections/Autumn 2013/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Autumn 2013/AMECO16.TXT",
   sep = ";"
 )
 a13_full$new2013 <- as.numeric(a13_full$X2013)
@@ -118,7 +118,7 @@ a13nt <- data.frame(
 )
 
 s14_full <- read.csv(
-  "~/ec_project/raw/Projections/Spring 2014/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Spring 2014/AMECO16.TXT",
   sep = ";"
 )
 s14_full$new2015 <- as.numeric(s14_full$X2015)
@@ -137,7 +137,7 @@ s14nt <- data.frame(
 )
 
 a14_full <- read.csv(
-  "~/ec_project/raw/Projections/Autumn 2014/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Autumn 2014/AMECO16.TXT",
   sep = ";"
 )
 a14_full$new2016 <- as.numeric(a14_full$X2016)
@@ -157,7 +157,7 @@ a14nt <- data.frame(
 )
 
 a17_full <- read.csv(
-  "~/ec_project/raw/Projections/Autumn 2017/AMECO16.TXT",
+  "~/EU_capacity/raw/Projections/Autumn 2017/AMECO16.TXT",
   sep = ";"
 )
 a17_full$new2019 <- as.numeric(a17_full$X2019)
@@ -236,5 +236,5 @@ full_dataset11_14 <- bind_rows(y11, y12, y13, y14)
 #df_full$true14 <- NULL
 #df_full$true15 <- NULL
 
-#write.csv(df_full, file = "~/ec_project/data/full_dataset_13", row.names = FALSE)
-save(full_dataset11_14, file = "~/ec_project/data/full_dataset11_14.Rdata")
+#write.csv(df_full, file = "~/EU_capacity/data/full_dataset_13", row.names = FALSE)
+save(full_dataset11_14, file = "~/EU_capacity/data/full_dataset11_14.Rdata")

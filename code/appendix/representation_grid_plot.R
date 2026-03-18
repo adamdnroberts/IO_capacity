@@ -1,7 +1,7 @@
 library(ggplot2)
 library(dplyr)
 
-load("~/ec_project/data/final_dataset_euro_pooled_plus_guide.Rdata")
+load("~/EU_capacity/data/final_dataset_euro_pooled_plus_guide.Rdata")
 
 representation_plot <- ggplot(data = subset(dfpg, !is.na(diff_iv))) +
   geom_hline(yintercept = 0, col = "blue", linetype = 2) +

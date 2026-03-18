@@ -80,6 +80,6 @@ pop_final <- expand.grid(
 
 write.csv(
   pop_final,
-  file = "~/ec_project/data/population.csv",
+  file = "~/EU_capacity/data/population.csv",
   row.names = FALSE
 )

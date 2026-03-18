@@ -5,9 +5,9 @@ library(fixest)
 library(car)
 
 # --- Load data (check existence) ---
-load("~/ec_project/data/bonds.Rdata")
-load("~/ec_project/data/final_dataset_euro.Rdata")
-load("~/ec_project/data/bonds_with_min.Rdata")
+load("~/EU_capacity/data/bonds.Rdata")
+load("~/EU_capacity/data/final_dataset_euro.Rdata")
+load("~/EU_capacity/data/bonds_with_min.Rdata")
 
 # bonds_with_min -> bonds_dt (data.table friendly)
 bonds_dt <- copy(bonds_with_min)
@@ -82,17 +82,17 @@ df_updates <- df_with_lags %>%
 # --- Extract the three series (revenue, expenditure, lending) and rename updates ---
 rev_updates <- df_updates %>%
   filter(title == "Total current revenue: general government ") %>%
-  rename(rev0_update = p0_update, rev1_update = p1_update)
+  dplyr::rename(rev0_update = p0_update, rev1_update = p1_update)
 
 exp_updates <- df_updates %>%
   filter(title == "Total current expenditure: general government ") %>%
-  rename(exp0_update = p0_update, exp1_update = p1_update)
+  dplyr::rename(exp0_update = p0_update, exp1_update = p1_update)
 
 lend_updates <- df_updates %>%
   filter(
     title == "Net lending (+) or net borrowing (-): general government "
   ) %>%
-  rename(lend0_update = p0_update, lend1_update = p1_update)
+  dplyr::rename(lend0_update = p0_update, lend1_update = p1_update)
 
 # --- Combine updates with inner joins (only keep rows where all three series exist) ---
 updates <- rev_updates %>%
@@ -183,12 +183,117 @@ m7 <- run_feols(
 # --- Output tables & hypothesis tests ---
 etable(m4, m5, m6, m7, tex = FALSE, digits = 3, digits.stats = 3)
 
-wald(m4, keep = c("rev_post0", "rev_post1"))
-wald(m4, keep = c("exp_post0", "exp_post1"))
-wald(m4, keep = c("rev_post0", "rev_post1", "exp_post0", "exp_post1"))
+w_rev_m4 <- wald(m4, keep = c("rev_post0", "rev_post1"))
+w_exp_m4 <- wald(m4, keep = c("exp_post0", "exp_post1"))
+w_revexp_m4 <- wald(
+  m4,
+  keep = c("rev_post0", "rev_post1", "exp_post0", "exp_post1")
+)
+w_rev_m5 <- wald(m5, keep = c("rev_post0", "rev_post1"))
+w_exp_m6 <- wald(m6, keep = c("exp_post0", "exp_post1"))
+w_lend_m7 <- wald(m7, c("lend_post0", "lend_post1"))
 
-wald(m5, keep = c("rev_post0", "rev_post1"))
+# --- LaTeX table ---
 
-wald(m6, keep = c("exp_post0", "exp_post1"))
+models <- list(m4, m5, m6, m7)
 
-wald(m7, c("lend_post0", "lend_post1"))
+# Extract (coef string, SE string) for one variable from one model.
+# Returns ("", "") when the variable is not in that model.
+fmt_coef <- function(m, var) {
+  b_all <- coef(m)
+  if (!var %in% names(b_all)) {
+    return(c("", ""))
+  }
+  b <- b_all[[var]]
+  s <- se(m)[[var]]
+  p <- pvalue(m)[[var]]
+  stars <- ifelse(
+    p < 0.01,
+    "$^{***}$",
+    ifelse(p < 0.05, "$^{**}$", ifelse(p < 0.1, "$^{*}$", ""))
+  )
+  c(
+    paste0(formatC(b, format = "f", digits = 3), stars),
+    paste0("(", formatC(s, format = "f", digits = 3), ")")
+  )
+}
+
+# Format a wald p-value with stars.
+fmt_wald <- function(w) {
+  p <- w$p
+  stars <- ifelse(
+    p < 0.01,
+    "***",
+    ifelse(p < 0.05, "**", ifelse(p < 0.1, "*", ""))
+  )
+  paste0("p = ", formatC(p, format = "f", digits = 2), stars)
+}
+
+# One LaTeX row: label & col1 & col2 & col3 & col4 \\
+tex_row <- function(label, vals) {
+  paste0("   ", label, " & ", paste(vals, collapse = " & "), "\\\\\n")
+}
+
+# Two LaTeX rows (coef + SE) for one variable across all models.
+var_rows <- function(label, var) {
+  coefs <- sapply(models, function(m) fmt_coef(m, var)[1])
+  ses <- sapply(models, function(m) fmt_coef(m, var)[2])
+  paste0(tex_row(label, coefs), tex_row("", ses))
+}
+
+# Wald rows
+wald_rev <- c(fmt_wald(w_rev_m4), fmt_wald(w_rev_m5), "NA", "NA")
+wald_exp <- c(fmt_wald(w_exp_m4), "NA", fmt_wald(w_exp_m6), "NA")
+wald_both <- c(fmt_wald(w_revexp_m4), "NA", "NA", "NA")
+wald_lend <- c("NA", "NA", "NA", fmt_wald(w_lend_m7))
+
+# Fit stats
+nobs_vals <- sapply(models, nobs)
+r2_vals <- sapply(models, function(m) {
+  formatC(r2(m, "r2"), format = "f", digits = 3)
+})
+wr2_vals <- sapply(models, function(m) {
+  formatC(r2(m, "wr2"), format = "f", digits = 3)
+})
+
+tbl <- paste0(
+  "\\begin{table}[]\n",
+  "\\begingroup\n",
+  "\\centering\n",
+  "\\begin{tabular}{lcccc}\n",
+  "   \\tabularnewline \\midrule \\midrule\n",
+  "   Dependent Variable: & \\multicolumn{4}{c}{\\% Change in Yield from Previous Week}\\\\\n",
+  "   Model: & (1) & (2) & (3) & (4)\\\\\n",
+  "   \\midrule\n",
+  var_rows("Post Forecast Release", "post"),
+  var_rows("EOY update, revenue", "rev_post0"),
+  var_rows("1 year update, revenue", "rev_post1"),
+  var_rows("EOY update, expenditure", "exp_post0"),
+  var_rows("1 year update, expenditure", "exp_post1"),
+  var_rows("EOY update, lending", "lend_post0"),
+  var_rows("1 year update, lending", "lend_post1"),
+  tex_row("Revenue Joint Significance", wald_rev),
+  tex_row("Expenditure Joint Significance", wald_exp),
+  tex_row("Rev and Exp Joint Significance", wald_both),
+  tex_row("Lending Joint Significance", wald_lend),
+  "   \\midrule\n",
+  "   \\emph{Fixed-effects}\\\\\n",
+  tex_row("Time", rep("Yes", 4)),
+  tex_row("Country", rep("Yes", 4)),
+  "   \\midrule\n",
+  "   \\emph{Fit statistics}\\\\\n",
+  tex_row("Observations", nobs_vals),
+  tex_row("R$^2$", r2_vals),
+  tex_row("Within R$^2$", wr2_vals),
+  "   \\midrule \\midrule\n",
+  "   \\multicolumn{5}{l}{\\emph{Clustered (country) standard-errors in parentheses}}\\\\\n",
+  "   \\multicolumn{5}{l}{\\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\\\\n",
+  "\\end{tabular}\n",
+  "\\par\\endgroup\n",
+  "\\caption{The Effect of ECFIN Forecasts on Government Bonds}\n",
+  "\\label{tab:bonds}\n",
+  "\\end{table}\n"
+)
+
+cat(tbl)
+#writeLines(tbl, "~/EU_capacity/output/bonds_table.tex")

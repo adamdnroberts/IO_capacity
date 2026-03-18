@@ -4,7 +4,7 @@ library(fixest)
 library(ggplot2)
 library(marginaleffects)
 
-datapath = "~/ec_project/data/"
+datapath = "~/EU_capacity/data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -29,66 +29,46 @@ overlapping_titles <- c(
 dfpg <- dfpg %>% filter(!title %in% overlapping_titles)
 
 #make subset datasets
-dfpg_noA <- dfpg %>% filter(aeoy == 0)
+dfpg_noEOY <- dfpg %>% filter(py != 0)
 
-##TABLE 1##
-# Function to run models
-run_models <- function(data) {
-  list(
-    rev = feols(
-      log(err_sq) ~
-        ecfin *
-          diff_iv +
-          log(pop_int) +
-          log(gdp) +
-          gdppc |
-          country + ysp + title + py,
-      data = data %>% filter(rev == 1)
-    ),
-    exp = feols(
-      log(err_sq) ~
-        ecfin *
-          diff_iv +
-          log(pop_int) +
-          log(gdp) +
-          gdppc |
-          country + ysp + title + py,
-      data = data %>% filter(exp == 1)
-    )
-  )
-}
-
-# Run models
-models_noA <- run_models(dfpg_noA)
+# Run combined model (revenue and expenditure together)
+model_combined <- feols(
+  log(err_sq) ~
+    ecfin *
+      diff_iv +
+      log(pop_int) +
+      log(gdp) +
+      gdppc |
+      country + ysp + title + py,
+  data = dfpg_noEOY
+)
 
 etable(
-  models_noA$rev,
-  models_noA$exp,
+  model_combined,
   tex = FALSE,
   digits = 3,
   digits.stats = 3
 )
 
 # Average marginal effects of ecfin across diff_iv values
-mfx_rev <- slopes(models_noA$rev, variables = "ecfin", by = "diff_iv")
-mfx_exp <- slopes(models_noA$exp, variables = "ecfin", by = "diff_iv")
+mfx <- slopes(model_combined, variables = "ecfin", by = "diff_iv")
 
-mfx_rev$Forecast <- "Revenue"
-mfx_exp$Forecast <- "Expenditure"
+mfx$est_pct <- 100 * (exp(mfx$estimate / 2) - 1)
+mfx$conf_low_pct <- 100 * (exp(mfx$conf.low / 2) - 1)
+mfx$conf_high_pct <- 100 * (exp(mfx$conf.high / 2) - 1)
 
-mfx <- rbind(mfx_rev, mfx_exp)
-
-marginal_effects <- ggplot(mfx, aes(x = diff_iv, y = estimate)) +
+marginal_effects <- ggplot(mfx, aes(x = diff_iv, y = est_pct)) +
   geom_hline(yintercept = 0, linetype = "longdash") +
-  geom_line(aes(color = Forecast)) +
+  geom_line() +
   geom_ribbon(
-    aes(ymin = conf.low, ymax = conf.high, fill = Forecast),
+    aes(ymin = conf_low_pct, ymax = conf_high_pct),
     alpha = 0.2
   ) +
   labs(
     y = "Marginal Effect of National Expertise",
     x = "Representation (percentage points)"
   ) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
   theme_minimal()
 
 print(marginal_effects)

@@ -10,8 +10,8 @@ library(purrr)
 # -------------------------
 # 1. Load and combine base datasets
 # -------------------------
-load("~/ec_project/data/full_dataset11_14.Rdata")
-load("~/ec_project/data/full_dataset15_23.Rdata")
+load("~/EU_capacity/data/full_dataset11_14.Rdata")
+load("~/EU_capacity/data/full_dataset15_23.Rdata")
 
 df_full <- bind_rows(full_dataset11_14, full_dataset15_23) %>%
   mutate(
@@ -29,9 +29,9 @@ df_full_spl <- bind_cols(select(df_full, -title), title_split)
 # -------------------------
 # 2. Merge with external data
 # -------------------------
-load("~/ec_project/data/staff_nat.Rdata")
-pop <- read.csv("~/ec_project/data/population.csv")
-gdp <- read.csv("~/ec_project/data/gdp.csv") %>%
+load("~/EU_capacity/data/staff_nat.Rdata")
+pop <- read.csv("~/EU_capacity/data/population.csv")
+gdp <- read.csv("~/EU_capacity/data/gdp.csv") %>%
   select(-c(iso2c, year, spring))
 
 # Sequential merges
@@ -100,7 +100,7 @@ df <- df_merged3 %>%
 # -------------------------
 df_euro <- dplyr::filter(df, unit == "Mrd ECU/EUR")
 
-load("~/ec_project/data/guide_rate.Rdata")
+load("~/EU_capacity/data/guide_rate.Rdata")
 
 dfg <- full_join(df_euro, gne_merge, by = c("country", "ysp")) %>%
   select(which(!duplicated(names(.))))
@@ -218,10 +218,10 @@ dfpg <- dfpg %>%
 
 save(
   dfpg,
-  file = paste0("~/ec_project/data/final_dataset_euro_pooled_plus_guide.Rdata")
+  file = paste0("~/EU_capacity/data/final_dataset_euro_pooled_plus_guide.Rdata")
 )
 
 write.csv(
   dfpg,
-  file = paste0("~/ec_project/data/EU_Capacity_dataset.csv")
+  file = paste0("~/EU_capacity/data/EU_Capacity_dataset.csv")
 )

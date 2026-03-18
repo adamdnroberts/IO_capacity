@@ -9,7 +9,7 @@ library(viridis)
 library(purrr)
 library(stringr)
 
-datapath = "~/ec_project/data/"
+datapath = "~/EU_capacity/data/"
 
 # pooled predictions
 
@@ -142,7 +142,7 @@ coef_df_gdp <- coef_df_gdp %>%
     )
   )
 
-#save(coef_df, file = "~/ec_project/data/interaction_results_coef_df.Rdata")
+#save(coef_df, file = "~/EU_capacity/data/interaction_results_coef_df.Rdata")
 
 interaction_results_gdp <- ggplot(
   subset(coef_df_gdp, Model != "Both"),
@@ -245,7 +245,7 @@ coef_df_gdppc <- coef_df_gdppc %>%
     )
   )
 
-#save(coef_df, file = "~/ec_project/data/interaction_results_coef_df.Rdata")
+#save(coef_df, file = "~/EU_capacity/data/interaction_results_coef_df.Rdata")
 
 interaction_results_gdppc <- ggplot(
   subset(coef_df_gdppc, Model != "Both"),
