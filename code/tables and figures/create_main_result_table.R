@@ -44,6 +44,11 @@ run_models <- function(data) {
       log(err_sq) ~
         ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
       data = data %>% filter(exp == 1)
+    ),
+    all = feols(
+      log(err_sq) ~
+        ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+      data = data %>% filter(rev == 1 | exp == 1)
     )
   )
 }
@@ -56,6 +61,7 @@ models_noEOY <- run_models(dfpg_noEOY)
 etable(
   models$rev,
   models$exp,
+  models$all,
   tex = TRUE,
   digits = 3,
   digits.stats = 3
@@ -64,6 +70,7 @@ etable(
 etable(
   models_noA$rev,
   models_noA$exp,
+  models_noA$all,
   tex = TRUE,
   digits = 3,
   digits.stats = 3
@@ -72,6 +79,7 @@ etable(
 etable(
   models_noEOY$rev,
   models_noEOY$exp,
+  models_noEOY$all,
   tex = TRUE,
   digits = 3,
   digits.stats = 3
@@ -103,9 +111,9 @@ get_model_stats <- function(model) {
   )
 }
 
-make_panel <- function(label, s_rev, s_exp, multicolumn = TRUE) {
+make_panel <- function(label, s_rev, s_exp, s_all, multicolumn = TRUE) {
   header <- if (multicolumn) {
-    paste0("\\multicolumn{3}{l}{\\emph{", label, "}}\\\\")
+    paste0("\\multicolumn{4}{l}{\\emph{", label, "}}\\\\")
   } else {
     paste0("\\emph{", label, "}\\\\")
   }
@@ -113,52 +121,54 @@ make_panel <- function(label, s_rev, s_exp, multicolumn = TRUE) {
     header,
     paste0(
       "National Expertise & ",
-      s_rev$coef_str,
-      " & ",
-      s_exp$coef_str,
+      s_rev$coef_str, " & ",
+      s_exp$coef_str, " & ",
+      s_all$coef_str,
       "\\\\"
     ),
-    paste0("& ", s_rev$se_str, "       & ", s_exp$se_str, "\\\\"),
+    paste0("& ", s_rev$se_str, " & ", s_exp$se_str, " & ", s_all$se_str, "\\\\"),
     "\\midrule",
-    paste0("Observations   & ", s_rev$n_obs, "        & ", s_exp$n_obs, "\\\\"),
-    paste0("   R$^2$          & ", s_rev$r2, "         & ", s_exp$r2, "\\\\"),
-    paste0("   Within R$^2$   & ", s_rev$wr2, "         & ", s_exp$wr2, "\\\\")
+    paste0("Observations   & ", s_rev$n_obs, " & ", s_exp$n_obs, " & ", s_all$n_obs, "\\\\"),
+    paste0("   R$^2$          & ", s_rev$r2, " & ", s_exp$r2, " & ", s_all$r2, "\\\\"),
+    paste0("   Within R$^2$   & ", s_rev$wr2, " & ", s_exp$wr2, " & ", s_all$wr2, "\\\\")
   )
 }
 
 s <- list(
   A_rev = get_model_stats(models$rev),
   A_exp = get_model_stats(models$exp),
+  A_all = get_model_stats(models$all),
   B_rev = get_model_stats(models_noA$rev),
   B_exp = get_model_stats(models_noA$exp),
+  B_all = get_model_stats(models_noA$all),
   C_rev = get_model_stats(models_noEOY$rev),
-  C_exp = get_model_stats(models_noEOY$exp)
+  C_exp = get_model_stats(models_noEOY$exp),
+  C_all = get_model_stats(models_noEOY$all)
 )
 
 tex_lines <- c(
   "\\begin{table}[]",
   "\\begingroup",
   "\\centering",
-  "\\begin{tabular}{lcc}",
+  "\\begin{tabular}{lccc}",
   "\\tabularnewline",
   "\\midrule \\midrule",
-  "Dependent Variable: & \\multicolumn{2}{c}{Log Error Squared}\\\\",
-  "Forecasts Category: & Revenue & Expenditure\\\\",
-  "Model: & (1) & (2)\\\\",
+  "Dependent Variable: & \\multicolumn{3}{c}{Log Error Squared}\\\\",
+  "Forecasts Category: & Revenue & Expenditure & All\\\\",
+  "Model: & (1) & (2) & (3)\\\\",
   "\\midrule",
-  make_panel("Panel A: All forecasts", s$A_rev, s$A_exp, multicolumn = FALSE),
+  make_panel("Panel A: All forecasts", s$A_rev, s$A_exp, s$A_all, multicolumn = FALSE),
   "\\midrule",
   make_panel(
     "Panel B: Excluding EOY Forecasts made in November",
-    s$B_rev,
-    s$B_exp
+    s$B_rev, s$B_exp, s$B_all
   ),
   "\\midrule",
-  make_panel("Panel C: Excluding EOY Forecasts", s$C_rev, s$C_exp),
+  make_panel("Panel C: Excluding EOY Forecasts", s$C_rev, s$C_exp, s$C_all),
   "\\midrule \\midrule",
-  "\\multicolumn{3}{l}{Clustered (country) standard-errors in parentheses}\\\\",
-  "\\multicolumn{3}{l}{Fixed effects: econ.\\ indicator, period, state, forecast year}\\\\",
-  "\\multicolumn{3}{l}{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}\\\\",
+  "\\multicolumn{4}{l}{Clustered (country) standard-errors in parentheses}\\\\",
+  "\\multicolumn{4}{l}{Fixed effects: econ.\\ indicator, period, state, forecast year}\\\\",
+  "\\multicolumn{4}{l}{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}\\\\",
   "\\end{tabular}",
   "\\par\\endgroup",
   "\\caption{Effect of National Expertise on Member State Forecast Accuracy}",

@@ -118,6 +118,7 @@ p0 <- subset(
     "title",
     "err0",
     "err0_sq",
+    "true0",
     "rev",
     "exp",
     "lend",
@@ -131,6 +132,7 @@ p0 <- subset(
 p0$py <- 0
 p0$err_sq <- p0$err0_sq
 p0$err <- p0$err0
+p0$true <- p0$true0
 
 p1 <- subset(
   dfg,
@@ -145,6 +147,7 @@ p1 <- subset(
     "title",
     "err1",
     "err1_sq",
+    "true1",
     "rev",
     "exp",
     "lend",
@@ -158,6 +161,7 @@ p1 <- subset(
 p1$py <- 1
 p1$err_sq <- p1$err1_sq
 p1$err <- p1$err1
+p1$true <- p1$true1
 
 p2 <- subset(
   dfg,
@@ -172,6 +176,7 @@ p2 <- subset(
     "title",
     "err2",
     "err2_sq",
+    "true2",
     "rev",
     "exp",
     "lend",
@@ -185,6 +190,7 @@ p2 <- subset(
 p2$py <- 2
 p2$err_sq <- p2$err2_sq
 p2$err <- p2$err2
+p2$true <- p2$true2
 
 p_list <- list(p0, p1, p2)
 dfpg <- do.call(plyr::rbind.fill, p_list)
@@ -215,6 +221,9 @@ dfpg <- dfpg %>%
   mutate(
     gdppc = gdp / pop_int
   )
+
+load("~/EU_capacity/data/epu.Rdata")
+dfpg <- left_join(dfpg, epu, by = c("country", "ysp"))
 
 save(
   dfpg,

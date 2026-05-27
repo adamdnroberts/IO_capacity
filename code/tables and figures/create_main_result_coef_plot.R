@@ -53,6 +53,11 @@ run_models <- function(data) {
       log(err_sq) ~
         ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
       data = data %>% filter(exp == 1)
+    ),
+    all = feols(
+      log(err_sq) ~
+        ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+      data = data %>% filter(rev == 1 | exp == 1)
     )
   )
 }
@@ -85,10 +90,13 @@ extract_coefs <- function(model) {
 coef_list <- list(
   rev1 = extract_coefs(models$rev),
   exp1 = extract_coefs(models$exp),
+  all1 = extract_coefs(models$all),
   rev2 = extract_coefs(models_noA$rev),
   exp2 = extract_coefs(models_noA$exp),
+  all2 = extract_coefs(models_noA$all),
   rev3 = extract_coefs(models_noEOY$rev),
-  exp3 = extract_coefs(models_noEOY$exp)
+  exp3 = extract_coefs(models_noEOY$exp),
+  all3 = extract_coefs(models_noEOY$all)
 )
 
 coef_df <- do.call(
@@ -119,7 +127,8 @@ coef_df <- coef_df %>%
     Model = case_match(
       Model,
       "rev" ~ "Revenue",
-      "exp" ~ "Expenditure"
+      "exp" ~ "Expenditure",
+      "all" ~ "All"
     ),
     Coefficient = 100 * (exp(Coefficient / 2) - 1),
     CI_Lower90 = 100 * (exp(CI_Lower90 / 2) - 1),
@@ -158,7 +167,7 @@ main_results <- ggplot(
 print(main_results)
 
 ggsave(
-  filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/images/main_plot.pdf",
+  filename = "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/main_plot.pdf",
   plot = main_results,
   width = 6,
   height = 4

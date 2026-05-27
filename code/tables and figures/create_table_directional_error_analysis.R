@@ -42,6 +42,11 @@ run_models <- function(data) {
       pos_error ~
         ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
       data = data %>% filter(exp == 1)
+    ),
+    all = feols(
+      pos_error ~
+        ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+      data = data %>% filter(rev == 1 | exp == 1)
     )
   )
 }
@@ -54,6 +59,7 @@ models_noEOY <- run_models(dfpg_noEOY)
 etable(
   models$rev,
   models$exp,
+  models$all,
   tex = TRUE,
   digits = 3,
   digits.stats = 3
@@ -62,6 +68,7 @@ etable(
 etable(
   models_noA$rev,
   models_noA$exp,
+  models_noA$all,
   tex = TRUE,
   digits = 3,
   digits.stats = 3
@@ -70,6 +77,7 @@ etable(
 etable(
   models_noEOY$rev,
   models_noEOY$exp,
+  models_noEOY$all,
   tex = TRUE,
   digits = 3,
   digits.stats = 3

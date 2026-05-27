@@ -45,6 +45,11 @@ exp_linear  <- feols(
     ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
   data = subset(dfpg, exp == 1)
 )
+all_linear  <- feols(
+  log(err_sq) ~
+    ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+  data = subset(dfpg, rev == 1 | exp == 1)
+)
 rev_linear2 <- feols(
   log(err_sq) ~
     ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
@@ -55,6 +60,11 @@ exp_linear2 <- feols(
     ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
   data = subset(dfpg_noA, exp == 1)
 )
+all_linear2 <- feols(
+  log(err_sq) ~
+    ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+  data = subset(dfpg_noA, rev == 1 | exp == 1)
+)
 rev_linear3 <- feols(
   log(err_sq) ~
     ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
@@ -64,6 +74,11 @@ exp_linear3 <- feols(
   log(err_sq) ~
     ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
   data = subset(dfpg_noEOY, exp == 1)
+)
+all_linear3 <- feols(
+  log(err_sq) ~
+    ecfin_int + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+  data = subset(dfpg_noEOY, rev == 1 | exp == 1)
 )
 
 # --- Spline interpolation ---
@@ -78,6 +93,11 @@ exp_spline  <- feols(
     ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
   data = subset(dfpg, exp == 1)
 )
+all_spline  <- feols(
+  log(err_sq) ~
+    ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+  data = subset(dfpg, rev == 1 | exp == 1)
+)
 rev_spline2 <- feols(
   log(err_sq) ~
     ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
@@ -88,6 +108,11 @@ exp_spline2 <- feols(
     ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
   data = subset(dfpg_noA, exp == 1)
 )
+all_spline2 <- feols(
+  log(err_sq) ~
+    ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+  data = subset(dfpg_noA, rev == 1 | exp == 1)
+)
 rev_spline3 <- feols(
   log(err_sq) ~
     ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
@@ -97,6 +122,11 @@ exp_spline3 <- feols(
   log(err_sq) ~
     ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
   data = subset(dfpg_noEOY, exp == 1)
+)
+all_spline3 <- feols(
+  log(err_sq) ~
+    ecfin_spline + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+  data = subset(dfpg_noEOY, rev == 1 | exp == 1)
 )
 
 # --- Table helpers ---
@@ -123,54 +153,57 @@ get_model_stats <- function(model, var) {
   )
 }
 
-make_panel <- function(header, s_rev, s_exp, method_label, multicolumn = TRUE) {
+make_panel <- function(header, s_rev, s_exp, s_all, method_label, multicolumn = TRUE) {
   hdr <- if (multicolumn) {
-    paste0("   \\multicolumn{3}{l}{\\emph{", header, "}}\\\\")
+    paste0("   \\multicolumn{4}{l}{\\emph{", header, "}}\\\\")
   } else {
     paste0("   \\emph{", header, "}\\\\")
   }
   c(
     hdr,
-    paste0("   National Expertise: & ", s_rev$coef_str, " & ", s_exp$coef_str, "\\\\"),
-    paste0("   ", method_label, " & ", s_rev$se_str, " & ", s_exp$se_str, "\\\\"),
+    paste0("   National Expertise: & ", s_rev$coef_str, " & ", s_exp$coef_str, " & ", s_all$coef_str, "\\\\"),
+    paste0("   ", method_label, " & ", s_rev$se_str, " & ", s_exp$se_str, " & ", s_all$se_str, "\\\\"),
     "   \\midrule",
-    paste0("   Observations & ", s_rev$n_obs, " & ", s_exp$n_obs, "\\\\"),
-    paste0("   R$^2$ & ", s_rev$r2, " & ", s_exp$r2, "\\\\"),
-    paste0("   Within R$^2$ & ", s_rev$wr2, " & ", s_exp$wr2, "\\\\")
+    paste0("   Observations & ", s_rev$n_obs, " & ", s_exp$n_obs, " & ", s_all$n_obs, "\\\\"),
+    paste0("   R$^2$ & ", s_rev$r2, " & ", s_exp$r2, " & ", s_all$r2, "\\\\"),
+    paste0("   Within R$^2$ & ", s_rev$wr2, " & ", s_exp$wr2, " & ", s_all$wr2, "\\\\")
   )
 }
 
 make_interp_table <- function(
-  rev1, exp1, rev2, exp2, rev3, exp3,
+  rev1, exp1, all1, rev2, exp2, all2, rev3, exp3, all3,
   var, method_label, caption, label
 ) {
   s <- list(
     A_rev = get_model_stats(rev1, var),
     A_exp = get_model_stats(exp1, var),
+    A_all = get_model_stats(all1, var),
     B_rev = get_model_stats(rev2, var),
     B_exp = get_model_stats(exp2, var),
+    B_all = get_model_stats(all2, var),
     C_rev = get_model_stats(rev3, var),
-    C_exp = get_model_stats(exp3, var)
+    C_exp = get_model_stats(exp3, var),
+    C_all = get_model_stats(all3, var)
   )
 
   lines <- c(
     "\\begin{table}[]",
     "\\begingroup",
     "\\centering",
-    "\\begin{tabular}{lcc}",
+    "\\begin{tabular}{lccc}",
     "   \\tabularnewline \\midrule \\midrule",
-    "   Dependent Variable: & \\multicolumn{2}{c}{Log Forecast Error Squared}\\\\",
-    "   Indicator Category: & Revenue & Expenditure\\\\",
-    "   Model: & (1) & (2)\\\\",
+    "   Dependent Variable: & \\multicolumn{3}{c}{Log Forecast Error Squared}\\\\",
+    "   Indicator Category: & Revenue & Expenditure & All\\\\",
+    "   Model: & (1) & (2) & (3)\\\\",
     "   \\midrule",
     make_panel("Panel A: All Forecasts",
-               s$A_rev, s$A_exp, method_label, multicolumn = FALSE),
+               s$A_rev, s$A_exp, s$A_all, method_label, multicolumn = FALSE),
     "   \\midrule",
     make_panel("Panel B: Excluding EOY Forecasts made in November",
-               s$B_rev, s$B_exp, method_label),
+               s$B_rev, s$B_exp, s$B_all, method_label),
     "   \\midrule",
     make_panel("Panel C: Excluding EOY Forecasts",
-               s$C_rev, s$C_exp, method_label),
+               s$C_rev, s$C_exp, s$C_all, method_label),
     "   \\midrule \\midrule",
     "\\end{tabular}",
     "",
@@ -187,7 +220,9 @@ make_interp_table <- function(
 # --- Output tables ---
 
 cat(make_interp_table(
-  rev_linear, exp_linear, rev_linear2, exp_linear2, rev_linear3, exp_linear3,
+  rev_linear, exp_linear, all_linear,
+  rev_linear2, exp_linear2, all_linear2,
+  rev_linear3, exp_linear3, all_linear3,
   var          = "ecfin_int",
   method_label = "Linear Interpolation",
   caption      = "Main Model with Linear Interpolation",
@@ -197,7 +232,9 @@ cat(make_interp_table(
 cat("\n\n")
 
 cat(make_interp_table(
-  rev_spline, exp_spline, rev_spline2, exp_spline2, rev_spline3, exp_spline3,
+  rev_spline, exp_spline, all_spline,
+  rev_spline2, exp_spline2, all_spline2,
+  rev_spline3, exp_spline3, all_spline3,
   var          = "ecfin_spline",
   method_label = "Spline Interpolation",
   caption      = "Main Model with Spline Interpolation",

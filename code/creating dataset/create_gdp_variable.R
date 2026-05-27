@@ -1,6 +1,7 @@
 library(dplyr)
 library(tidyr)
 library(zoo)
+library(ggplot2)
 
 #gdp, millions of euro
 estat_gdp <- read.csv("~/EU_capacity/raw/namq_10_gdp_page_linear.csv")

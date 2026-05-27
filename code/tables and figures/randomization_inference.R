@@ -95,7 +95,7 @@ pdf(
 
 # Create the plot
 hist(as.numeric(coef), breaks = 100, main = "", xlab = "Coefficients")
-abline(v = true_coef, col = "red")
+abline(v = true_coef, col = "black", lty = "longdash")
 
 # Close the PDF device
 dev.off()
