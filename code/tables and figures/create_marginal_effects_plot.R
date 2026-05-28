@@ -41,7 +41,7 @@ model_combined <- feols(
       log(gdp) +
       gdppc |
       country + ysp + title + py,
-  data = dfpg_noEOY
+  data = dfpg_noEOY,
 )
 
 etable(
@@ -76,7 +76,7 @@ marginal_effects <- ggplot(mfx, aes(x = diff_iv, y = est_pct)) +
 print(marginal_effects)
 
 ggsave(
-  filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/images/marginal_effects_by_guiderate_plot.pdf",
+  filename = "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/marginal_effects_by_guiderate_plot.pdf",
   plot = marginal_effects,
   width = 6,
   height = 4

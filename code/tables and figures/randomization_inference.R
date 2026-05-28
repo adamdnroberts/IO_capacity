@@ -36,6 +36,7 @@ all2 <- feols(
 )
 
 true_coef <- all2$coefficients[1]
+true_t <- summary(all2, vcov = "HC1")$coeftable["ecfin", "t value"]
 true_r2 <- r2(all2, type = "r2")
 true_wr2 <- r2(all2, type = "wr2")
 
@@ -51,6 +52,7 @@ countrynames <- unique(sn$country)
 r2 <- list()
 wr2 <- list()
 coef <- list()
+t_stat <- list()
 
 set.seed(42)
 
@@ -79,6 +81,7 @@ for (i in 1:10000) {
   r2[i] <- r2(rand, type = "r2")
   wr2[i] <- r2(rand, type = "wr2")
   coef[i] <- rand$coefficients[1]
+  t_stat[i] <- summary(rand, vcov = "HC1")$coeftable["ecfin_rand", "t value"]
   if (i %% 100 == 0) {
     print(i / 10000)
   }
@@ -88,19 +91,25 @@ end.time - start.time
 
 # Open a PDF device
 pdf(
-  "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/images/randomization_coefficient.pdf",
+  "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/randomization_coefficient.pdf",
   width = 7,
   height = 5
 )
 
 # Create the plot
-hist(as.numeric(coef), breaks = 100, main = "", xlab = "Coefficients")
-abline(v = true_coef, col = "black", lty = "longdash")
+hist(as.numeric(t_stat), breaks = 100, main = "", xlab = "t-statistic")
+abline(v = true_t, col = "black", lty = "longdash")
 
 # Close the PDF device
 dev.off()
 
+# Raw-coefficient p-values (original)
 one_sided_test <- (length(coef) - length(coef[coef > true_coef])) / length(coef)
 two_sided_test <- (length(coef) -
   length(coef[abs(as.numeric(coef)) < abs(as.numeric(true_coef))])) /
   length(coef)
+
+# Studentized p-values (asymptotically pivotal, robust to unequal variances)
+t_vals <- as.numeric(t_stat)
+one_sided_t <- mean(t_vals <= true_t)
+two_sided_t <- mean(abs(t_vals) >= abs(true_t))

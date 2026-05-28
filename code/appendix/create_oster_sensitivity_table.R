@@ -90,6 +90,16 @@ res_beta <- o_beta(
   data = dm
 )
 
+res_beta_neg <- o_beta(
+  y = "log_err_sq",
+  x = "ecfin",
+  con = "log_pop_int + log_gdp_v + gdppc",
+  delta = -1,
+  R2max = r2max,
+  type = "lm",
+  data = dm
+)
+
 # cat("Oster sensitivity results (Panel C, all forecasts):\n")
 # print(res_delta)
 # print(res_beta)
@@ -144,6 +154,11 @@ tex_lines <- c(
   paste0(
     "$\\beta^*$ ($\\delta = 1$)           & ",
     fmt3(pull(res_beta, "beta*")),
+    "\\\\"
+  ),
+  paste0(
+    "$\\beta^*$ ($\\delta = -1$)          & ",
+    fmt3(pull(res_beta_neg, "beta*")),
     "\\\\"
   ),
   "\\midrule \\midrule",
