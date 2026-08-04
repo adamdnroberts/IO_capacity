@@ -12,8 +12,8 @@
 # off by default.
 #
 # Each script runs in its own R process, so results cannot depend on what ran
-# before. Neither objects nor the package search path carry over -- and the
-# second matters: sourcing these scripts into one session leaves plyr masking
+# before. Neither objects nor the package search path carry over.
+# This is because sourcing these scripts into one session leaves plyr masking
 # dplyr::mutate, which silently corrupts the interpolated ECFIN series. See
 # create_ecfin_variable.R.
 #
@@ -111,8 +111,12 @@ check_root <- function() {
   if (length(missing) > 0) {
     stop(
       "\n  The working directory does not look like the project root.\n",
-      "    working directory : ", root, "\n",
-      "    not found here    : ", paste(missing, collapse = ", "), "\n\n",
+      "    working directory : ",
+      root,
+      "\n",
+      "    not found here    : ",
+      paste(missing, collapse = ", "),
+      "\n\n",
       "  cd into the folder containing run_all.R and try again.\n",
       call. = FALSE
     )
@@ -123,8 +127,19 @@ check_root <- function() {
 # Packages the pipeline loads. Checked up front so a missing one fails in the
 # first second rather than forty minutes in.
 REQUIRED_PACKAGES <- c(
-  "countrycode", "data.table", "dplyr", "fixest", "ggplot2", "lubridate",
-  "readxl", "robomit", "rvest", "stringr", "tidyr", "wbstats", "zoo"
+  "countrycode",
+  "data.table",
+  "dplyr",
+  "fixest",
+  "ggplot2",
+  "lubridate",
+  "readxl",
+  "robomit",
+  "rvest",
+  "stringr",
+  "tidyr",
+  "wbstats",
+  "zoo"
 )
 
 check_packages <- function() {
@@ -133,8 +148,12 @@ check_packages <- function() {
   ]
   if (length(missing) > 0) {
     stop(
-      "\n  Missing packages: ", paste(missing, collapse = ", "), "\n",
-      '  install.packages(c("', paste(missing, collapse = '", "'), '"))\n',
+      "\n  Missing packages: ",
+      paste(missing, collapse = ", "),
+      "\n",
+      '  install.packages(c("',
+      paste(missing, collapse = '", "'),
+      '"))\n',
       call. = FALSE
     )
   }
@@ -173,8 +192,13 @@ run_script <- function(rel_path, root) {
   } else {
     message("")
     message("     FAILED (exit ", status, ") -- see ", log_file)
-    tail_lines <- tryCatch(readLines(log_file, warn = FALSE), error = function(e) character())
-    for (l in utils::tail(tail_lines, 8)) message("       | ", l)
+    tail_lines <- tryCatch(
+      readLines(log_file, warn = FALSE),
+      error = function(e) character()
+    )
+    for (l in utils::tail(tail_lines, 8)) {
+      message("       | ", l)
+    }
   }
 
   list(script = rel_path, ok = ok, seconds = elapsed, log = log_file)
@@ -195,8 +219,10 @@ main <- function(stage_names) {
   unknown <- setdiff(stage_names, names(STAGES))
   if (length(unknown) > 0) {
     stop(
-      "unknown stage(s): ", paste(unknown, collapse = ", "),
-      "\n  valid stages: ", paste(names(STAGES), collapse = ", "),
+      "unknown stage(s): ",
+      paste(unknown, collapse = ", "),
+      "\n  valid stages: ",
+      paste(names(STAGES), collapse = ", "),
       call. = FALSE
     )
   }
@@ -224,12 +250,16 @@ main <- function(stage_names) {
   message(strrep("=", 72))
   message(sprintf(
     "%d of %d scripts succeeded in %.1f minutes",
-    length(results) - length(failed), length(results), total
+    length(results) - length(failed),
+    length(results),
+    total
   ))
   if (length(failed) > 0) {
     message("")
     message("Failed:")
-    for (f in failed) message("  ", f$script, "\n    log: ", f$log)
+    for (f in failed) {
+      message("  ", f$script, "\n    log: ", f$log)
+    }
     message(strrep("=", 72))
     quit(status = 1, save = "no")
   }
