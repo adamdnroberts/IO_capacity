@@ -95,8 +95,7 @@ STAGES <- list(
       "code/tables and figures/create_ECFIN_nationality_figure.R",
       "code/tables and figures/create_main_result_coef_plot.R",
       "code/tables and figures/create_marginal_effects_plot.R",
-      "code/tables and figures/create_interaction_plots.R",
-      # ~5 minutes: 10,000 permutation fits, seeded.
+      # ~10 minutes: 10,000 permutation fits, seeded.
       "code/tables and figures/randomization_inference.R"
     )
   ),
@@ -116,11 +115,15 @@ STAGES <- list(
   ),
 
   exploratory = list(
-    label = "Optional -- unpublished analyses (no .tex output)",
+    label = "Optional -- console-only analyses",
     scripts = c(
-      "code/tables and figures/create_table_directional_error_analysis.R",
+      # Prints the three Wald tests quoted in the Model section (pooling across
+      # indicators and across forecast horizons). Nothing else reports them.
       "code/tables and figures/het_effects_by_indicator_and_forecast.R",
-      "code/tables and figures/create_ash_analysis.R"
+      "code/tables and figures/create_table_directional_error_analysis.R",
+      # Writes gdp_quartile_plot.pdf and gdppc_quartile_plot.pdf, neither of
+      # which is included by any .tex file.
+      "code/tables and figures/create_interaction_plots.R"
     )
   ),
 
@@ -151,9 +154,8 @@ check_root <- function() {
 # Packages the pipeline loads. Checked up front so a missing one fails in the
 # first second rather than forty minutes in.
 REQUIRED_PACKAGES <- c(
-  "ashr", "countrycode", "data.table", "dplyr", "fixest", "ggplot2",
-  "lubridate", "readxl", "robomit", "rvest", "stringr", "tidyr", "wbstats",
-  "zoo"
+  "countrycode", "data.table", "dplyr", "fixest", "ggplot2", "lubridate",
+  "readxl", "robomit", "rvest", "stringr", "tidyr", "wbstats", "zoo"
 )
 
 check_packages <- function() {
