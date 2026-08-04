@@ -562,7 +562,22 @@ y22 <- y22 %>%
 test <- y22$p0 - y22$true0
 summary(test)
 
-full_dataset15_23 <- bind_rows(y15, y16, y17, y18, y19, y20, y21, y22)
+# Spring 2023 contributes its current-year forecast only. p0 targets 2023, for
+# which true3 (Spring 2024) carries the actual. p1 targets 2024, and Spring
+# 2024's 2024 column is itself a forecast, not an outturn -- including it would
+# compare a forecast against a forecast, so p1 is dropped. Add it back once an
+# AMECO vintage carrying 2024 actuals is available.
+s23 <- merge(s23nt, true3, by = c("country", "title", "unit", "code"))
+
+y23 <- s23
+y23$p1 <- NULL
+for (v in paste0("true", 15:22)) y23[[v]] <- NULL
+y23 <- y23 %>% dplyr::rename(true0 = true23)
+
+test <- y23$p0 - y23$true0
+summary(test)
+
+full_dataset15_23 <- bind_rows(y15, y16, y17, y18, y19, y20, y21, y22, y23)
 
 # Guard against a repeat of the "Czech Republic"/"Czechia" failure: a member
 # state that a vintage and true3 both describe must survive the merge into the
@@ -578,7 +593,7 @@ EU_MEMBERS <- c(
   "Slovenia", "Spain", "Sweden", "United Kingdom"
 )
 
-for (nm in ls(pattern = "^[sa](1[5-9]|2[0-2])nt$")) {
+for (nm in ls(pattern = "^[sa](1[5-9]|2[0-3])nt$")) {
   vintage <- get(nm)
   expected <- intersect(
     intersect(unique(vintage$country), unique(true3$country)),

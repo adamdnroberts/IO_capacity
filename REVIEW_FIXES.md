@@ -80,16 +80,41 @@ precision: in Panel C, columns (1), (2) and (4) move from ** to ***.
 - `main_sage_template.tex:258` quotes ranges for all three columns, all shifted,
   and the Ireland worked example derives from Panel C coefficients that moved.
 
-### 3. Two forecast vintages built but never bound in — **OPEN**
+### 3. Two forecast vintages built but never bound in — **DONE**
 
 `clean_data11_14.R:126` (`s14nt`), `clean_data15_23.R:326` (`s23nt`)
 
-Both are constructed and used only as truth sources; neither is included in the
-`bind_rows` that forms the panel. Result: **zero rows at ysp 2014 and 2023.**
-The project is documented as 2011–2023; it covers 24 of 26 half-years.
+Both were constructed and used only as truth sources; neither was included in
+the `bind_rows` forming the panel, so ysp 2014 and 2023 were **empty** while the
+project claimed 2011–2023 coverage (24 of 26 half-years).
 
-*Corroborated:* Austria has 3 rows at ysp 2014 and 2023 versus 81 elsewhere —
-and those 3 are the orphan rows from item 5, not real observations.
+**Spring 2014.** Was excluded deliberately (`# s14 commented out`). Root cause
+found: AMECO relabelled titles from `:- ESA 1995` to `:- ESA 2010` between
+Spring and Autumn 2014. Spring 2014 shares all 47 title strings with the
+2011–2013 vintages but only 5 with Autumn 2017, the `true2` source, so the
+four-key merge recovered 84 EU rows against 1,008 merging on `code` alone.
+Now merged on `code` (unique in both frames, asserted). `create_dataset.R:25`
+splits the ESA suffix off the title, so the rows align with the rest of the
+panel and get correct `rev`/`exp` flags.
+
+**Spring 2023.** Bound with `py=0` only. Its `p1` targets 2024, and Spring
+2024's 2024 column is itself a forecast, not an outturn — including it would
+compare forecast against forecast. Documented in the script for when a vintage
+carrying 2024 actuals appears.
+
+*Verified:* Austria now has 81 rows at every ysp from 2011 to 2023. ysp 2014
+behaves like any other spring vintage (`py` 0 and 1, none at 2); ysp 2023 has
+`py=0` only. **Orphan rows fell from 156 to 0** — a side effect, since ysp 2014
+and 2023 now have real forecast rows for the `guide_rate` join to match, which
+resolves most of item 5.
+
+*Effect on results:* N rises to 11,413 / 8,857 in column (3) of Panels A and B.
+**Panel C is completely unchanged**, as Spring 2023 contributes `py=0` only.
+Panel B column (2) loses significance (-0.015* to -0.013, n.s.).
+
+**All 324 added observations come from Spring 2023; Spring 2014 added zero.**
+An earlier estimate of ~1,900 recovered observations for Spring 2014 was wrong:
+it checked forecast and truth availability but not staff coverage. See item 17.
 
 ### 4. Copy-paste error in staff bulletin date stamp — **OPEN**
 
@@ -257,6 +282,27 @@ Note: the named `overlapping_titles` literal itself is byte-identical everywhere
 it appears — it has not drifted. The problem is that this script doesn't use it.
 
 *Fix:* define the sample once in `create_dataset.R`.
+
+### 17. Raw `ecfin` is missing for a third of the panel's vintages — **OPEN**
+
+Found while investigating item 3. Countries with a non-missing raw `ecfin`:
+
+| ysp | 2012 | 2013 | 2014 | 2014.5 | 2015 | 2015.5 | 2016.5 | 2017.5 | 2019.5 | 2020 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| n | 1 | 1 | **0** | 29 | 29 | **0** | **0** | **0** | **0** | **0** |
+
+The main model uses raw `ecfin`, not `ecfin_int`, so **ysp 2014, 2015.5, 2016.5,
+2017.5, 2019.5 and 2020 contribute nothing to any regression**, and 2012 and
+2013 contribute a single country each. The effective vintage coverage of the
+published table is roughly half the panel, and neither the table notes nor the
+text says so.
+
+This is presumably why `ecfin_int` / `ecfin_spline` exist as robustness checks
+(item 14 concerns how they are built). But the main specification's sample is
+being defined by staff-bulletin availability in a way no reader could infer.
+
+*Suggested:* report the effective number of vintages in the table notes, and
+state explicitly that identification comes from the periods with staff data.
 
 ### 16. Smaller items — **OPEN**
 

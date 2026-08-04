@@ -228,11 +228,36 @@ y12 <- merge_and_summarize(s12nt, a12nt, true1, c("12", "13", ""))
 # Merge and summarize for s13 and a13
 y13 <- merge_and_summarize(s13nt, a13nt, true1, c("13", "", ""))
 
-# Merge and summarize for a14 (s14 commented out)
+# Merge and summarize for a14
 a14 <- merge(a14nt, true2, by = c("country", "title", "unit", "code"))
 y14 <- a14 %>% rename(true0 = true14, true1 = true15, true2 = true16)
 
+# Spring 2014 merges on `code` alone rather than on the usual four keys.
+# AMECO relabelled its titles from ":- ESA 1995" to ":- ESA 2010" between
+# Spring and Autumn 2014: Spring 2014 shares all 47 title strings with the
+# 2011-2013 vintages but only 5 with Autumn 2017, which is the source of
+# true2. The four-key merge therefore recovered almost nothing (84 EU rows
+# against 1,008 on `code`), which is why this vintage had previously been
+# left out and ysp 2014 was empty. `code` is the stable AMECO series key and
+# is unique in both frames. create_dataset.R splits the ESA suffix off the
+# title, so these rows align with the rest of the panel.
+true2_code <- true2[, c("code", "true14", "true15")]
+stopifnot(
+  !anyDuplicated(s14nt$code),
+  !anyDuplicated(true2_code$code)
+)
+s14 <- merge(s14nt, true2_code, by = "code")
+s14 <- s14 %>% rename(true0 = true14, true1 = true15)
+
+y14 <- bind_rows(y14, s14)
+
 full_dataset11_14 <- bind_rows(y11, y12, y13, y14)
+
+# ysp 2014 must now be populated in both seasons.
+stopifnot(
+  sum(full_dataset11_14$year == 2014 & full_dataset11_14$spring == 1) > 0,
+  sum(full_dataset11_14$year == 2014 & full_dataset11_14$spring == 0) > 0
+)
 #df_full$true14 <- NULL
 #df_full$true15 <- NULL
 
