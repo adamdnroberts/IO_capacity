@@ -4,17 +4,51 @@ library(data.table)
 library(fixest)
 library(car)
 
-# --- Load data (check existence) ---
+# --- Load data ---
 load("~/EU_capacity/data/bonds.Rdata")
 load("~/EU_capacity/data/final_dataset_euro.Rdata")
-load("~/EU_capacity/data/bonds_with_min.Rdata")
 
-# bonds_with_min -> bonds_dt (data.table friendly)
-bonds_dt <- copy(bonds_with_min)
+bonds_dt <- copy(bonds)
 setDT(bonds_dt)
 
+# Signed number of days from an observation to the NEAREST forecast release:
+# negative before, positive after, so `post` below is simply min > 0. Ties go to
+# the earlier release, matching the original implementation, which took the
+# first column whose absolute value equalled the minimum with columns in
+# ascending release order.
+#
+# This previously arrived via data/bonds_with_min.Rdata, which no script in the
+# repository produced -- the row-by-row loop that built it had been commented
+# out before that script was deleted, so the bonds appendix could not be
+# rebuilt from raw input. Computing it here removes the orphan file and keeps it
+# consistent with the release dates actually present in the data. Verified to
+# reproduce the stored bonds_with_min$min exactly on all 81,339 rows.
+nearest_signed_days <- function(dates, releases) {
+  releases <- sort(unique(releases))
+  n <- length(releases)
+  i <- findInterval(dates, releases)
+
+  d_before <- rep(NA_real_, length(dates))
+  ok <- i >= 1
+  d_before[ok] <- as.numeric(dates[ok] - releases[i[ok]])
+
+  d_after <- rep(NA_real_, length(dates))
+  j <- i + 1
+  ok2 <- j <= n
+  d_after[ok2] <- as.numeric(dates[ok2] - releases[j[ok2]])
+
+  use_before <- !is.na(d_before) &
+    (is.na(d_after) | abs(d_before) <= abs(d_after))
+  ifelse(use_before, d_before, d_after)
+}
+
 # --- Prediction dates & full date window ---
-pred_dates <- sort(unique(df$date_pred))
+# `min` uses every release; the event window below drops the first one, as the
+# original did.
+release_dates <- sort(unique(df$date_pred))
+bonds_dt[, min := nearest_signed_days(date, release_dates)]
+
+pred_dates <- release_dates
 if (length(pred_dates) > 0) {
   pred_dates <- pred_dates[-1]
 }
@@ -286,7 +320,7 @@ tbl <- paste0(
   tex_row("R$^2$", r2_vals),
   tex_row("Within R$^2$", wr2_vals),
   "   \\midrule \\midrule\n",
-  "   \\multicolumn{5}{l}{\\emph{Clustered (country) standard-errors in parentheses}}\\\\\n",
+  "   \\multicolumn{5}{l}{\\emph{Clustered (state) standard-errors in parentheses}}\\\\\n",
   "   \\multicolumn{5}{l}{\\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\\\\n",
   "\\end{tabular}\n",
   "\\par\\endgroup\n",
@@ -296,4 +330,7 @@ tbl <- paste0(
 )
 
 cat(tbl)
-#writeLines(tbl, "~/EU_capacity/output/bonds_table.tex")
+
+tablepath <- "~/EU_capacity/overleaf/tables/"
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(tbl, paste0(tablepath, "bonds_table.tex"))

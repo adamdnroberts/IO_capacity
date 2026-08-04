@@ -113,6 +113,17 @@ df_euro <- dplyr::filter(df, unit == "Mrd ECU/EUR", country %in% EU_MEMBERS)
 
 stopifnot(setequal(unique(df_euro$country), EU_MEMBERS))
 
+# The unpooled euro panel is also an input to the bonds analysis in the
+# appendix, which needs one row per country-title-release with p0/p1/p2 side by
+# side rather than stacked by horizon. It is saved under the name `df` because
+# that is what code/appendix/create_bonds_analysis_table.R loads. Previously
+# data/final_dataset_euro.Rdata sat in the repo with no producer, so the bonds
+# appendix could not be rebuilt from raw input.
+local({
+  df <- df_euro
+  save(df, file = "~/EU_capacity/data/final_dataset_euro.Rdata")
+})
+
 load("~/EU_capacity/data/guide_rate.Rdata")
 
 # left_join, not full_join: gne_merge covers country-ysp combinations that the

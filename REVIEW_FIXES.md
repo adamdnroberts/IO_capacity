@@ -268,7 +268,7 @@ which works only on a case-insensitive filesystem.
 
 *Fix:* one root variable, or `here::here()`.
 
-### 11. Three datasets have no producer — **PARTLY DONE (guide_rate recovered)**
+### 11. Three datasets have no producer — **DONE**
 
 `data/guide_rate.Rdata` (loaded by `create_dataset.R`), `data/final_dataset_euro.Rdata`,
 `data/bonds_with_min.Rdata`. No script in the repo built any of them, so a clean
@@ -301,8 +301,40 @@ neither a restoration error:
 Main table and summary statistics are byte-identical (neither uses `diff_iv`).
 The two marginal-effects figures do depend on it and were regenerated.
 
-Still open: `final_dataset_euro.Rdata` and `bonds_with_min.Rdata`, both consumed
-only by appendix/bonds code.
+**`final_dataset_euro.Rdata` restored.** It holds the unpooled euro panel, which
+the bonds appendix needs with `p0`/`p1`/`p2` side by side rather than stacked by
+horizon. `create_dataset.R` now saves `df_euro` under the name `df`, which is
+what the bonds script loads.
+
+**`bonds_with_min.Rdata` eliminated rather than recreated.** Only its `min`
+column was ever used -- `min_abs`, the `_lead` columns and `date_lead1` are
+vestigial, and the analysis recomputes `yield_lag1` itself. `min` is the signed
+number of days to the nearest forecast release (so `post` is `min > 0`), and it
+is now computed in the analysis script, vectorised, replacing a row-by-row loop
+that had been commented out before its script was deleted.
+
+*Verified:* the reconstruction reproduces the stored `bonds_with_min$min`
+**exactly on all 81,339 rows** (using the full release set -- the event window
+separately drops the first release, as the original did), and the refactor is
+behaviour-neutral: original and new code both give N of 292/292/292/290 on the
+stored inputs.
+
+**Every dataset in `data/` now has a producer.**
+
+*Effect on the bonds appendix:* N becomes 294 across all four models. Two claims
+in the text needed correcting, for different reasons:
+- Revenue updates remain jointly significant in model 2 at p = 0.07 on the old
+  data but **p = 0.14** on the corrected panel, so "the significance for revenue
+  holds when I remove expenditure updates" no longer stands. **Broke today.**
+- Lending updates were described as jointly significant at p = 0.001; they are
+  **p = 0.06**, and were already 0.06 against the stored data files. **Already
+  stale**, as was the reported N of 338.
+
+Unchanged: only the expenditure 1-year update is individually significant, all
+updates are jointly significant at p = 0.00, revenue joint in model 1 is
+p = 0.00, and expenditure significance does not survive removing revenue
+(p = 0.32). Expenditure joint in model 1 is now significant at 0.05 rather than
+the 0.1 claimed.
 
 ### 12. Every table is hand-pasted into LaTeX — **DONE (paper tables)**
 
