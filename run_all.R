@@ -1,62 +1,26 @@
 # run_all.R -- rebuild every dataset, table and figure in the paper.
+# See README.md for requirements and the script-to-output map.
 #
-# Usage
-# -----
-#   Rscript run_all.R              # data + paper + appendix (the default)
-#   Rscript run_all.R data         # intermediate datasets only
-#   Rscript run_all.R paper        # main-text tables and figures only
-#   Rscript run_all.R data paper   # any combination of stage names
+#   Rscript run_all.R               # data + paper + appendix (the default)
+#   Rscript run_all.R data paper    # any combination of stage names
 #
-# Stage names: data, paper, appendix, exploratory, fetch
+# Run from the project root; every path in the project is relative to it.
 #
-#   fetch        re-downloads the EPU spreadsheets from policyuncertainty.com.
-#                Off by default: raw/EPU/ is already populated and the site's
-#                file names change without notice.
-#   exploratory  console-only analyses that appear in no .tex file. Off by
-#                default. Run them if you are changing the sample definition
-#                and want to see whether anything unpublished moves.
+# Stages: `data` builds data/ from raw/; `paper` and `appendix` build the
+# tables and figures from data/, so they need no raw inputs. `exploratory`
+# (console-only analyses) and `fetch` (re-downloads the EPU spreadsheets) are
+# off by default.
 #
-# Every script runs in its own R process. This costs a few seconds per script
-# and is worth it twice over:
+# Each script runs in its own R process, so results cannot depend on what ran
+# before. Neither objects nor the package search path carry over -- and the
+# second matters: sourcing these scripts into one session leaves plyr masking
+# dplyr::mutate, which silently corrupts the interpolated ECFIN series. See
+# create_ecfin_variable.R.
 #
-#   * Objects do not carry over, which is how `create_ECFIN_nationality_figure.R`
-#     was caught plotting a data frame an earlier script had left behind.
-#   * The package search path does not carry over either. That one is not
-#     hypothetical: `create_staff_nationality_dataset.R` calls library(plyr)
-#     when dplyr is already attached, so its own library(dplyr) is a no-op and
-#     plyr sits ABOVE dplyr for the rest of the session. Bare `mutate` then
-#     resolves to plyr::mutate, which ignores group_by(). Sourcing everything
-#     into one session silently corrupted the interpolated ECFIN series.
-#
-# So results must not depend on what ran before, and here they cannot.
-#
-# Paths
-# -----
-# Every path in this project is relative to the project root, so the folder can
-# live anywhere and needs no configuration. Run this script from the project
-# root:
-#
-#   cd /path/to/EU_Capacity
-#   Rscript run_all.R
-#
-# Each script is launched with the project root as its working directory, and
-# opening EU_capacity.Rproj in RStudio sets the same working directory, so the
-# scripts also run one at a time by hand.
-#
-# Network
-# -------
-# `create_population_variable.R` calls the World Bank API through wbstats. It
-# is the one step in the default path that needs a connection. World Bank
-# population estimates are revised occasionally, so a rebuild will not always
-# be byte-identical to a previous one. data/population.csv is distributed with
-# the replication package; skip this script to reproduce the published numbers
-# exactly.
-#
-# Raw inputs
-# ----------
-# The `data` stage needs raw/. The `paper` and `appendix` stages run from the
-# built .Rdata files in data/, so the tables and figures can be reproduced
-# without it.
+# create_population_variable.R is the only default step needing a network
+# connection (World Bank API). Its estimates are revised occasionally, so skip
+# it and keep the distributed data/population.csv to reproduce the published
+# numbers exactly.
 
 # ---- Configuration ---------------------------------------------------------
 
