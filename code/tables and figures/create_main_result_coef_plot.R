@@ -9,7 +9,7 @@ library(car)
 library(robomit)
 library(viridis)
 
-datapath = "~/EU_Capacity/data/"
+datapath = "data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -167,7 +167,7 @@ main_results <- ggplot(
 print(main_results)
 
 ggsave(
-  filename = "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/main_plot.pdf",
+  filename = "overleaf/images/main_plot.pdf",
   plot = main_results,
   width = 6,
   height = 4

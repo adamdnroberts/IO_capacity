@@ -6,7 +6,7 @@ library(ggplot2)
 # session where staff_nat happened to be in the global environment it silently
 # plotted whatever was left there. The published figure was only reproducible
 # by accident of run order.
-load("~/EU_capacity/data/staff_nat.Rdata")
+load("data/staff_nat.Rdata")
 
 # Contract employees enter the staff population from the Autumn 2014 bulletin,
 # so counts before and after this line are not directly comparable. The paper
@@ -23,7 +23,7 @@ staff_nat_plot <- ggplot(data = staff_nat) +
 print(staff_nat_plot)
 
 ggsave(
-  filename = "~/EU_capacity/overleaf/images/ECFIN_Nationality_Plot.pdf",
+  filename = "overleaf/images/ECFIN_Nationality_Plot.pdf",
   plot = staff_nat_plot,
   width = 6,
   height = 4

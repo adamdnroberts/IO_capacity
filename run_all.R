@@ -32,33 +32,33 @@
 #
 # Paths
 # -----
-# The scripts address files as "~/EU_capacity/...". Under Rscript on Windows
-# "~" expands to C:/Users/<you>, not C:/Users/<you>/Documents, so this project
-# needs R_USER set:
+# Every path in this project is relative to the project root, so the folder can
+# live anywhere and needs no configuration. Run this script from the project
+# root:
 #
-#   $env:R_USER = "C:/Users/adamd/Documents"
-#   & "C:\Program Files\R\R-4.5.1\bin\Rscript.exe" run_all.R
+#   cd /path/to/EU_Capacity
+#   Rscript run_all.R
 #
-# RStudio sets HOME differently and needs nothing. The check below stops with
-# this instruction rather than letting a script fail 200 lines in on a missing
-# file.
+# Each script is launched with the project root as its working directory, and
+# opening EU_capacity.Rproj in RStudio sets the same working directory, so the
+# scripts also run one at a time by hand.
 #
 # Network
 # -------
 # `create_population_variable.R` calls the World Bank API through wbstats. It
 # is the one step in the default path that needs a connection. World Bank
-# population estimates are revised, so a rebuild will not always be
-# byte-identical to a previous one -- see item 11 in REVIEW_FIXES.md.
+# population estimates are revised occasionally, so a rebuild will not always
+# be byte-identical to a previous one. data/population.csv is distributed with
+# the replication package; skip this script to reproduce the published numbers
+# exactly.
 #
 # Raw inputs
 # ----------
-# raw/ is gitignored and is not distributed with this repository. Without it
-# the `data` stage cannot run; the `paper` and `appendix` stages work from the
-# built .Rdata files in data/.
+# The `data` stage needs raw/. The `paper` and `appendix` stages run from the
+# built .Rdata files in data/, so the tables and figures can be reproduced
+# without it.
 
 # ---- Configuration ---------------------------------------------------------
-
-ROOT <- "~/EU_capacity/"
 
 STAGES <- list(
   data = list(
@@ -137,18 +137,23 @@ DEFAULT_STAGES <- c("data", "paper", "appendix")
 
 # ---- Environment checks ----------------------------------------------------
 
+# The project root is simply the working directory, which every script's
+# relative paths are resolved against. Confirm it really is the project rather
+# than letting a script fail 200 lines in on a missing file.
 check_root <- function() {
-  expanded <- path.expand(ROOT)
-  if (!dir.exists(file.path(expanded, "code"))) {
+  root <- getwd()
+  markers <- c("run_all.R", "code", "data")
+  missing <- markers[!file.exists(file.path(root, markers))]
+  if (length(missing) > 0) {
     stop(
-      "\n  '", ROOT, "' does not resolve to this project.\n",
-      "  '~' currently expands to: ", path.expand("~"), "\n\n",
-      "  Set R_USER to the directory *containing* EU_Capacity and re-run:\n",
-      '    $env:R_USER = "C:/Users/adamd/Documents"\n',
+      "\n  The working directory does not look like the project root.\n",
+      "    working directory : ", root, "\n",
+      "    not found here    : ", paste(missing, collapse = ", "), "\n\n",
+      "  cd into the folder containing run_all.R and try again.\n",
       call. = FALSE
     )
   }
-  normalizePath(expanded, winslash = "/", mustWork = TRUE)
+  normalizePath(root, winslash = "/", mustWork = TRUE)
 }
 
 # Packages the pipeline loads. Checked up front so a missing one fails in the
@@ -235,9 +240,8 @@ main <- function(stage_names) {
   root <- check_root()
   check_packages()
 
-  # Child processes expand "~" using their own R_USER. Pin it to whatever
-  # resolved correctly here, so the check above holds for every subprocess.
-  Sys.setenv(R_USER = dirname(path.expand("~/EU_capacity")))
+  # Child processes inherit this working directory, which is what makes the
+  # scripts' relative paths resolve.
   dir.create(LOG_DIR, recursive = TRUE, showWarnings = FALSE)
 
   message("EU_Capacity -- full rebuild")

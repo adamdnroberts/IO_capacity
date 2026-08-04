@@ -5,8 +5,8 @@ library(fixest)
 library(car)
 
 # --- Load data ---
-load("~/EU_capacity/data/bonds.Rdata")
-load("~/EU_capacity/data/final_dataset_euro.Rdata")
+load("data/bonds.Rdata")
+load("data/final_dataset_euro.Rdata")
 
 bonds_dt <- copy(bonds)
 setDT(bonds_dt)
@@ -331,6 +331,6 @@ tbl <- paste0(
 
 cat(tbl)
 
-tablepath <- "~/EU_capacity/overleaf/tables/"
+tablepath <- "overleaf/tables/"
 dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
 writeLines(tbl, paste0(tablepath, "bonds_table.tex"))

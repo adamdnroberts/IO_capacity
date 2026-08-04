@@ -5,22 +5,22 @@ library(tidyr)
 library(ggplot2)
 
 #epu_belgium is the average of french and dutch
-belgium <- read_excel("~/EU_capacity/raw/EPU/EPU_Belgium_data.xlsx") %>%
+belgium <- read_excel("raw/EPU/EPU_Belgium_data.xlsx") %>%
   clean_names()
 belgium$date <- as.Date(belgium$date)
 
-croatia <- read_excel("~/EU_capacity/raw/EPU/Croatia_EPU.xlsx", skip = 1) %>%
+croatia <- read_excel("raw/EPU/Croatia_EPU.xlsx", skip = 1) %>%
   clean_names()
 croatia$date <- as.Date(paste0(croatia$time, "01"), format = "%YM%m%d")
 
 # BBD includes only four categories of words: uncertainty, economy, policy, and geographic location
 # extended uses more Danish-context words
-denmark <- read.csv("~/EU_capacity/raw/EPU/Denmark_monthly.csv", skip = 2) %>%
+denmark <- read.csv("raw/EPU/Denmark_monthly.csv", skip = 2) %>%
   clean_names()
 denmark$date <- as.Date(denmark$date, format = "%m/%d/%Y")
 
 europe <- read_excel(
-  "~/EU_capacity/raw/EPU/Europe_Policy_Uncertainty_Data.xlsx"
+  "raw/EPU/Europe_Policy_Uncertainty_Data.xlsx"
 ) %>%
   clean_names()
 europe$date <- as.Date(
@@ -29,7 +29,7 @@ europe$date <- as.Date(
 )
 
 greece <- read_excel(
-  "~/EU_Capacity/raw/EPU/FKT_Greece_Policy_Uncertainty_Data.xlsx",
+  "raw/EPU/FKT_Greece_Policy_Uncertainty_Data.xlsx",
   skip = 1
 ) %>%
   clean_names()
@@ -39,7 +39,7 @@ greece$date <- as.Date(
 )
 
 ireland <- read_excel(
-  "~/EU_Capacity/raw/EPU/Ireland_Policy_Uncertainty_Data_Zalla.xlsx"
+  "raw/EPU/Ireland_Policy_Uncertainty_Data_Zalla.xlsx"
 ) %>%
   clean_names()
 ireland$date <- as.Date(as.numeric(ireland$date), origin = "1899-12-30")
@@ -47,7 +47,7 @@ ireland <- ireland %>% filter(!is.na(date))
 
 #EBO-NL is stricter than EBO, excluding non-relevant international terms and general terms (e.g. policy) without mention of dutch/holland/netherlands/etc,
 netherlands <- read_excel(
-  "~/EU_Capacity/raw/EPU/Netherlands_Policy_Uncertainty_Data.xlsx"
+  "raw/EPU/Netherlands_Policy_Uncertainty_Data.xlsx"
 ) %>%
   clean_names()
 netherlands$date <- as.Date(as.numeric(netherlands$x1), origin = "1899-12-30")
@@ -55,14 +55,14 @@ netherlands <- netherlands %>% filter(!is.na(date))
 
 #short one only goes from 2018 to 2024
 poland <- read_excel(
-  "~/EU_Capacity/raw/EPU/POL_EPU_INDICES.xls"
+  "raw/EPU/POL_EPU_INDICES.xls"
 ) %>%
   clean_names()
 poland$date <- as.Date(as.numeric(poland$date), origin = "1899-12-30")
 poland <- poland %>% filter(!is.na(date))
 
 portugal <- read_excel(
-  "~/EU_Capacity/raw/EPU/epuptindex_data.xlsx"
+  "raw/EPU/epuptindex_data.xlsx"
 ) %>%
   clean_names()
 portugal$date <- as.Date(
@@ -71,7 +71,7 @@ portugal$date <- as.Date(
 )
 
 sweden <- read_excel(
-  "~/EU_Capacity/raw/EPU/Sweden_Policy_Uncertainty_Data.xlsx"
+  "raw/EPU/Sweden_Policy_Uncertainty_Data.xlsx"
 ) %>%
   clean_names()
 sweden$date <- as.Date(
@@ -142,7 +142,7 @@ epu <- epu %>%
   group_by(country, ysp) %>%
   dplyr::summarise(epu = mean(epu, na.rm = TRUE), .groups = "drop")
 
-save(epu, file = "~/EU_capacity/data/epu.Rdata")
+save(epu, file = "data/epu.Rdata")
 
 ggplot(epu, aes(x = ysp, y = epu)) +
   geom_line() +

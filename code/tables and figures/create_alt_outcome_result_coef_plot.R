@@ -4,7 +4,7 @@ library(dplyr)
 library(plyr)
 library(data.table)
 
-datapath = "~/EU_Capacity/data/"
+datapath = "data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -199,7 +199,7 @@ alt_outcome_plot <- ggplot(
 print(alt_outcome_plot)
 
 ggsave(
-  filename = "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/alt_outcome_plot.pdf",
+  filename = "overleaf/images/alt_outcome_plot.pdf",
   plot = alt_outcome_plot,
   width = 6,
   height = 4

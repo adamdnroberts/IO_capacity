@@ -6,7 +6,7 @@ library(plyr)
 library(tidyr)
 library(data.table)
 
-datapath = "~/EU_capacity/data/"
+datapath = "data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -219,7 +219,7 @@ make_interp_table <- function(
 
 # --- Output tables ---
 
-tablepath <- "~/EU_capacity/overleaf/tables/"
+tablepath <- "overleaf/tables/"
 dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
 
 linear_table <- make_interp_table(

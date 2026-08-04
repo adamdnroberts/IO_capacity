@@ -33,7 +33,7 @@ countryname <- c(
 list <- list()
 for (i in 1:length(countryname)) {
   filename <- paste0(
-    "~/EU_capacity/raw/Bonds/",
+    "raw/Bonds/",
     countryname[i],
     " 10-Year Bond Yield Historical Data.csv"
   )
@@ -54,7 +54,7 @@ bonds$date <- as.Date(bonds$Date, "%m/%d/%Y")
 bonds <- subset(bonds, select = c(country, date, yield, change_pct, Date))
 
 us <- read.csv(
-  "~/EU_capacity/raw/Bonds/United States 10-Year Bond Yield Historical Data.csv"
+  "raw/Bonds/United States 10-Year Bond Yield Historical Data.csv"
 )
 us <- dplyr::rename(us, us_change_pct = Change.., us_yield = Price)
 us$us_change_pct <- as.numeric(gsub("%|,", "", us$us_change_pct))
@@ -84,4 +84,4 @@ bonds[,
   by = country
 ]
 
-save(bonds, file = "~/EU_capacity/data/bonds.Rdata")
+save(bonds, file = "data/bonds.Rdata")

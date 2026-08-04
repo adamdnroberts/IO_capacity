@@ -5,7 +5,7 @@ library(ggplot2)
 library(marginaleffects)
 library(mgcv)
 
-datapath = "~/EU_capacity/data/"
+datapath = "data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -76,7 +76,7 @@ marginal_effects <- ggplot(mfx, aes(x = diff_iv, y = est_pct)) +
 print(marginal_effects)
 
 ggsave(
-  filename = "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/marginal_effects_by_guiderate_plot.pdf",
+  filename = "overleaf/images/marginal_effects_by_guiderate_plot.pdf",
   plot = marginal_effects,
   width = 6,
   height = 4
@@ -147,7 +147,7 @@ gam_marginal_effects <- ggplot(mfx_gam, aes(x = diff_iv, y = est_pct)) +
 print(gam_marginal_effects)
 
 ggsave(
-  filename = "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/gam_marginal_effects_plot.pdf",
+  filename = "overleaf/images/gam_marginal_effects_plot.pdf",
   plot = gam_marginal_effects,
   width = 6,
   height = 4

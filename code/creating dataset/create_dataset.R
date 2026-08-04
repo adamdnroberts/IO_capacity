@@ -10,8 +10,8 @@ library(purrr)
 # -------------------------
 # 1. Load and combine base datasets
 # -------------------------
-load("~/EU_capacity/data/full_dataset11_14.Rdata")
-load("~/EU_capacity/data/full_dataset15_23.Rdata")
+load("data/full_dataset11_14.Rdata")
+load("data/full_dataset15_23.Rdata")
 
 df_full <- bind_rows(full_dataset11_14, full_dataset15_23) %>%
   mutate(
@@ -29,9 +29,9 @@ df_full_spl <- bind_cols(select(df_full, -title), title_split)
 # -------------------------
 # 2. Merge with external data
 # -------------------------
-load("~/EU_capacity/data/staff_nat.Rdata")
-pop <- read.csv("~/EU_capacity/data/population.csv")
-gdp <- read.csv("~/EU_capacity/data/gdp.csv") %>%
+load("data/staff_nat.Rdata")
+pop <- read.csv("data/population.csv")
+gdp <- read.csv("data/gdp.csv") %>%
   select(-c(iso2c, year, spring))
 
 # Sequential merges
@@ -107,7 +107,7 @@ df <- df_merged3 %>%
 # log(pop_int) from any robustness check and Norway and Switzerland would enter
 # an "EU member state" regression. It also meant descriptive statistics computed
 # on the panel described a different population from the models.
-source("~/EU_capacity/code/creating dataset/eu_members.R")
+source("code/creating dataset/eu_members.R")
 
 df_euro <- dplyr::filter(df, unit == "Mrd ECU/EUR", country %in% EU_MEMBERS)
 
@@ -121,10 +121,10 @@ stopifnot(setequal(unique(df_euro$country), EU_MEMBERS))
 # appendix could not be rebuilt from raw input.
 local({
   df <- df_euro
-  save(df, file = "~/EU_capacity/data/final_dataset_euro.Rdata")
+  save(df, file = "data/final_dataset_euro.Rdata")
 })
 
-load("~/EU_capacity/data/guide_rate.Rdata")
+load("data/guide_rate.Rdata")
 
 # left_join, not full_join: gne_merge covers country-ysp combinations that the
 # forecast panel does not (ysp 2014, which has no vintage -- see clean_data11_14.R
@@ -257,15 +257,15 @@ dfpg <- dfpg %>%
     gdppc = gdp / pop_int
   )
 
-load("~/EU_capacity/data/epu.Rdata")
+load("data/epu.Rdata")
 dfpg <- left_join(dfpg, epu, by = c("country", "ysp"))
 
 save(
   dfpg,
-  file = paste0("~/EU_capacity/data/final_dataset_euro_pooled_plus_guide.Rdata")
+  file = paste0("data/final_dataset_euro_pooled_plus_guide.Rdata")
 )
 
 write.csv(
   dfpg,
-  file = paste0("~/EU_capacity/data/EU_Capacity_dataset.csv")
+  file = paste0("data/EU_Capacity_dataset.csv")
 )

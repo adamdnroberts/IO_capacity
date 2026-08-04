@@ -4,7 +4,7 @@ library(lubridate)
 
 #use https://www.freeconvert.com/pdf-to-text to convert pdfs, then trim headings and footings
 
-rawpath <- "~/EU_capacity/raw/Staff/"
+rawpath <- "raw/Staff/"
 
 nat11 <- read.csv(
   paste0(rawpath, "2011-Europa_SP2_BS_Nat_x_DG_201112.csv"),
@@ -191,10 +191,10 @@ staff_c3$date <- as.Date(staff_c3$date)
 # matches NA to NA -- so any staff row whose code failed to parse would be
 # assigned "Namibia" rather than falling through to the "Other" bucket.
 iso_alpha2 <- read.csv(
-  "~/EU_capacity/raw/Staff/iso_alpha2.csv",
+  "raw/Staff/iso_alpha2.csv",
   na.strings = ""
 )
-iso_alpha3 <- read.csv("~/EU_capacity/raw/Staff/iso_alpha3.csv")
+iso_alpha3 <- read.csv("raw/Staff/iso_alpha3.csv")
 
 stopifnot(
   !anyNA(iso_alpha2[[1]]),
@@ -269,9 +269,9 @@ staff$Total <- NULL
 
 staff <- staff %>% dplyr::rename(COLLEGE = COLLÈGE)
 
-save(staff, file = "~/EU_capacity/data/Commission_nationalities.Rdata")
+save(staff, file = "data/Commission_nationalities.Rdata")
 write.csv(
   staff,
-  file = "~/EU_capacity/data/Commission_nationalities.csv",
+  file = "data/Commission_nationalities.csv",
   row.names = FALSE
 )

@@ -2,7 +2,7 @@ library(rvest)
 library(dplyr)
 
 base_url <- "https://www.policyuncertainty.com/"
-outdir   <- "~/EU_capacity/raw/EPU/"
+outdir   <- "raw/EPU/"
 dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
 
 # Countries in dfpg with known pages on policyuncertainty.com.

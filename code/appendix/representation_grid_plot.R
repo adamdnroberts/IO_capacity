@@ -1,7 +1,7 @@
 library(ggplot2)
 library(dplyr)
 
-load("~/EU_capacity/data/final_dataset_euro_pooled_plus_guide.Rdata")
+load("data/final_dataset_euro_pooled_plus_guide.Rdata")
 
 representation_plot <- ggplot(data = subset(dfpg, !is.na(diff_iv))) +
   geom_hline(yintercept = 0, col = "blue", linetype = 2) +
@@ -14,7 +14,7 @@ representation_plot <- ggplot(data = subset(dfpg, !is.na(diff_iv))) +
 print(representation_plot)
 
 ggsave(
-  filename = "~/EU_capacity/overleaf/images/Representation_Plot.png",
+  filename = "overleaf/images/Representation_Plot.png",
   plot = representation_plot,
   width = 8,
   height = 4

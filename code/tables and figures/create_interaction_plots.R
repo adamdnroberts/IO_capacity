@@ -9,7 +9,7 @@ library(viridis)
 library(purrr)
 library(stringr)
 
-datapath = "~/EU_capacity/data/"
+datapath = "data/"
 
 # pooled predictions
 
@@ -142,7 +142,7 @@ coef_df_gdp <- coef_df_gdp %>%
     )
   )
 
-#save(coef_df, file = "~/EU_capacity/data/interaction_results_coef_df.Rdata")
+#save(coef_df, file = "data/interaction_results_coef_df.Rdata")
 
 interaction_results_gdp <- ggplot(
   subset(coef_df_gdp, Model != "Both"),
@@ -178,7 +178,7 @@ interaction_results_gdp <- ggplot(
 print(interaction_results_gdp)
 
 ggsave(
-  filename = "~/EU_capacity/overleaf/images/gdp_quartile_plot.pdf",
+  filename = "overleaf/images/gdp_quartile_plot.pdf",
   plot = interaction_results_gdp,
   width = 6,
   height = 4
@@ -245,7 +245,7 @@ coef_df_gdppc <- coef_df_gdppc %>%
     )
   )
 
-#save(coef_df, file = "~/EU_capacity/data/interaction_results_coef_df.Rdata")
+#save(coef_df, file = "data/interaction_results_coef_df.Rdata")
 
 interaction_results_gdppc <- ggplot(
   subset(coef_df_gdppc, Model != "Both"),
@@ -281,7 +281,7 @@ interaction_results_gdppc <- ggplot(
 print(interaction_results_gdppc)
 
 ggsave(
-  filename = "~/EU_capacity/overleaf/images/gdppc_quartile_plot.pdf",
+  filename = "overleaf/images/gdppc_quartile_plot.pdf",
   plot = interaction_results_gdppc,
   width = 6,
   height = 4

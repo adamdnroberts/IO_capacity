@@ -4,8 +4,8 @@ library(dplyr)
 library(data.table)
 library(ggplot2)
 
-datapath <- "~/EU_capacity/data/"
-tablepath <- "~/EU_capacity/overleaf/tables/"
+datapath <- "data/"
+tablepath <- "overleaf/tables/"
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
@@ -201,7 +201,7 @@ oster_plot <- o_delta_rsq_viz(
 suppressMessages(print(oster_plot))
 
 ggsave(
-  "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/oster_plot.pdf",
+  "overleaf/images/oster_plot.pdf",
   plot = oster_plot,
   width = 6,
   height = 4

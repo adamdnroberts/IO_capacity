@@ -6,7 +6,7 @@ library(plyr)
 library(tidyr)
 library(data.table)
 
-datapath = "~/EU_Capacity/data/"
+datapath = "data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)

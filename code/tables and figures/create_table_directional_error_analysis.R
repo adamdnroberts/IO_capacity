@@ -2,7 +2,7 @@ library(data.table)
 library(dplyr)
 library(fixest)
 
-datapath = "~/EU_capacity/data/"
+datapath = "data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)

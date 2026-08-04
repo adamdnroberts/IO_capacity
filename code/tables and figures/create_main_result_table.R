@@ -6,8 +6,8 @@ library(plyr)
 library(tidyr)
 library(data.table)
 
-datapath = "~/EU_Capacity/data/"
-tablepath = "~/EU_Capacity/overleaf/tables/"
+datapath = "data/"
+tablepath = "overleaf/tables/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)

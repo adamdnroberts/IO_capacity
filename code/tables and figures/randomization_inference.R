@@ -2,7 +2,7 @@ library(data.table)
 library(fixest)
 library(dplyr)
 
-datapath = "~/EU_capacity/data/"
+datapath = "data/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -91,7 +91,7 @@ end.time - start.time
 
 # Open a PDF device
 pdf(
-  "C:/Users/adamd/Documents/EU_Capacity/overleaf/images/randomization_coefficient.pdf",
+  "overleaf/images/randomization_coefficient.pdf",
   width = 7,
   height = 5
 )

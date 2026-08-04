@@ -27,11 +27,11 @@ library(dplyr)
 library(data.table)
 library(zoo)
 
-datapath <- "~/EU_capacity/data/"
+datapath <- "data/"
 
 pop <- read.csv(paste0(datapath, "population.csv"))
-EP <- read.csv(paste0(datapath, "old_data/EP.csv"))
-council <- read.csv(paste0(datapath, "old_data/Council.csv"))
+EP <- read.csv(paste0(datapath, "EP.csv"))
+council <- read.csv(paste0(datapath, "Council.csv"))
 
 # --- European Parliament seat shares -----------------------------------------
 # EP.csv holds seat counts at each apportionment. Build one frame per

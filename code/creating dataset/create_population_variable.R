@@ -102,6 +102,6 @@ stopifnot(
 
 write.csv(
   pop_final,
-  file = "~/EU_capacity/data/population.csv",
+  file = "data/population.csv",
   row.names = FALSE
 )
