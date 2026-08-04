@@ -4,6 +4,7 @@ library(plyr)
 library(data.table)
 
 datapath = "~/EU_Capacity/data/"
+tablepath = "~/EU_Capacity/overleaf/tables/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -98,7 +99,7 @@ make_combined_table <- function(s1, s2, caption, label) {
     "\\midrule",
     make_panel6("Panel C: Excluding EOY Forecasts", s1$C_rev, s1$C_exp, s1$C_all, s2$C_rev, s2$C_exp, s2$C_all),
     "\\midrule \\midrule",
-    "\\multicolumn{7}{l}{Clustered (country) standard-errors in parentheses}\\\\",
+    "\\multicolumn{7}{l}{Clustered (state) standard-errors in parentheses}\\\\",
     "\\multicolumn{7}{l}{Fixed effects: econ.\\ indicator, period, state, forecast year}\\\\",
     "\\multicolumn{7}{l}{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}\\\\",
     "\\end{tabular}",
@@ -221,16 +222,16 @@ s_mape <- list(
 )
 
 ##COMBINED TABLE##
-cat(make_combined_table(
+# Caption distinguishes this from the main results table, which previously
+# carried a byte-identical one.
+alt_outcome_table <- make_combined_table(
   s1      = s_logabs,
   s2      = s_mape,
-  caption = "Effect of National Expertise on Member State Forecast Accuracy",
+  caption = "Effect of National Expertise on Member State Forecast Accuracy Under Alternative Error Measures",
   label   = "tab:alt_outcome_model"
-), "\n")
+)
 
-# writeLines(
-#   make_combined_table(s_logabs, s_mape,
-#     "Effect of National Expertise on Member State Forecast Accuracy",
-#     "tab:alt_outcome_model"),
-#   "C:/Users/adamd/Documents/EU_Capacity/overleaf/tables/alt_outcome_table.tex"
-# )
+cat(alt_outcome_table, "\n")
+
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(alt_outcome_table, paste0(tablepath, "alt_outcome_table.tex"))

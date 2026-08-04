@@ -304,7 +304,7 @@ The two marginal-effects figures do depend on it and were regenerated.
 Still open: `final_dataset_euro.Rdata` and `bonds_with_min.Rdata`, both consumed
 only by appendix/bonds code.
 
-### 12. Every table is hand-pasted into LaTeX — **IN PROGRESS**
+### 12. Every table is hand-pasted into LaTeX — **DONE (paper tables)**
 
 The `writeLines(...)` call is commented out in all six table scripts; they
 `cat()` to console instead, and the `.tex` files contain literal `tabular`
@@ -335,9 +335,20 @@ template + `tables/` change is overleaf commit `7c35113`.
 the overleaf repo (same commit); it carried a stale hand-pasted copy of this
 table. Nothing referenced it. Recoverable from history.
 
-Still open: `create_summary_stats_table.R`, `create_oster_sensitivity_table.R`,
-`create_alt_outcome_result_table.R`, `create_EPU_model_table.R`,
-`create_bonds_analysis_table.R`.
+**All four tables that appear in the paper or appendix are now generated**:
+main results, summary statistics, Oster sensitivity, and alternative outcomes.
+Each is written to `overleaf/tables/` and read with `\input`.
+
+The alternative-outcomes table (appendix) also had two labelling problems fixed
+at the same time: its caption was byte-identical to the main results table's, so
+two different tables shared a caption (labels differed, so cross-references
+resolved -- it now reads "...Under Alternative Error Measures"); and its footnote
+said "Clustered (country)" where every other table says "Clustered (state)".
+Its pasted numbers were stale, e.g. N of 8,089 against a current 8,857.
+
+Still open, both unused by the paper: `create_EPU_model_table.R` (largely
+subsumed by column 4 of the main table, and carrying a duplicate
+`\label{tab:main_model}` -- item 16) and `create_bonds_analysis_table.R`.
 
 **Prose not yet updated.** `main_sage_template.tex:258` still quotes the
 revenue range as "between -0.033 and -0.036"; Panel B is now -0.037 after the
