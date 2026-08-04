@@ -393,8 +393,22 @@ The same rule was hiding uncommitted modifications to `main_plot.pdf` and
 data-dependent ones regenerated first so the committed versions match the
 rebuilt panel.
 
-*Still stale:* `randomization_coefficient.pdf` — regenerating it means re-running
-10,000 `feols` fits (`randomization_inference.R`), not done here.
+*Randomization figure refreshed.* Re-ran the 10,000 fits (4.7 min, seed 42).
+`randomization_inference.R` now also **saves its draws** to
+`data/randomization_draws.rds` and **prints its p-values**, which were
+previously computed and then discarded when the session ended — so the numbers
+behind the published figure were not recoverable without repeating the run.
+
+| | paper | now |
+|---|---|---|
+| one-sided p (t-stat) | 0.004 | **0.0082** |
+| two-sided p (t-stat) | — | 0.0177 |
+| one-sided p (raw coef) | — | 0.0162 |
+| true t | — | -4.617 |
+
+The paper's claim that the main t-statistic is "more negative than more than
+99\%" of simulated ones **still holds** (99.18%). Only the parenthetical
+`p = 0.004` needs updating to 0.008.
 
 ### 18. Theil's U analysis deleted — **DONE**
 
