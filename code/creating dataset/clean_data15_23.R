@@ -359,6 +359,24 @@ true3 <- data.frame(
   'true23' = s24_full$X2023
 )
 
+# Standardize country labels before merging.
+# AMECO renamed "Czech Republic" to "Czechia" in the Spring 2019 release, so the
+# 2015-2018 vintage frames carry the old label while true3 (built from Spring
+# 2024) carries the new one. Because `country` is part of the merge key and
+# merge() defaults to an inner join, every Czech row in those eight vintages was
+# silently dropped. Normalize both sides here, before any merge.
+standardize_country <- function(df) {
+  df$country <- trimws(as.character(df$country))
+  df$country[df$country == "Czech Republic"] <- "Czechia"
+  df$country[df$country == "Macedonia FYR"] <- "North Macedonia"
+  df
+}
+
+for (nm in ls(pattern = "^[sa][0-9]{2}nt$")) {
+  assign(nm, standardize_country(get(nm)))
+}
+true3 <- standardize_country(true3)
+
 #merging
 s15 <- merge(s15nt, true3, by = c("country", "title", "unit", "code"))
 a15 <- merge(a15nt, true3, by = c("country", "title", "unit", "code"))
@@ -545,5 +563,35 @@ test <- y22$p0 - y22$true0
 summary(test)
 
 full_dataset15_23 <- bind_rows(y15, y16, y17, y18, y19, y20, y21, y22)
+
+# Guard against a repeat of the "Czech Republic"/"Czechia" failure: a member
+# state that a vintage and true3 both describe must survive the merge into the
+# panel. Restricted to member states on purpose -- AMECO's aggregates ("Euro
+# area", "European Union") legitimately fail to match, because their series
+# `code` encodes the membership count (EA19 -> EA20) and so changes across
+# vintages. Aggregates never enter the estimation sample.
+EU_MEMBERS <- c(
+  "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia",
+  "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
+  "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg",
+  "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia",
+  "Slovenia", "Spain", "Sweden", "United Kingdom"
+)
+
+for (nm in ls(pattern = "^[sa](1[5-9]|2[0-2])nt$")) {
+  vintage <- get(nm)
+  expected <- intersect(
+    intersect(unique(vintage$country), unique(true3$country)),
+    EU_MEMBERS
+  )
+  merged <- get(sub("nt$", "", nm))
+  lost <- setdiff(expected, unique(merged$country))
+  if (length(lost) > 0) {
+    stop(
+      "Merge with true3 dropped every row for: ", paste(lost, collapse = ", "),
+      " (vintage ", nm, "). Check for a country label change in AMECO."
+    )
+  }
+}
 
 save(full_dataset15_23, file = "~/EU_capacity/data/full_dataset15_23.Rdata")
