@@ -7,6 +7,7 @@ library(tidyr)
 library(data.table)
 
 datapath = "~/EU_capacity/data/"
+tablepath <- "~/EU_capacity/overleaf/tables/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -167,3 +168,9 @@ lines <- c(
 )
 
 cat(paste(lines, collapse = "\n"), "\n")
+
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(
+  paste(lines, collapse = "\n"),
+  paste0(tablepath, "exclude_ukbe_table.tex")
+)

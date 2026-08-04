@@ -219,7 +219,10 @@ make_interp_table <- function(
 
 # --- Output tables ---
 
-cat(make_interp_table(
+tablepath <- "~/EU_capacity/overleaf/tables/"
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+
+linear_table <- make_interp_table(
   rev_linear, exp_linear, all_linear,
   rev_linear2, exp_linear2, all_linear2,
   rev_linear3, exp_linear3, all_linear3,
@@ -227,11 +230,9 @@ cat(make_interp_table(
   method_label = "Linear Interpolation",
   caption      = "Main Model with Linear Interpolation",
   label        = "tab:linear_int"
-))
+)
 
-cat("\n\n")
-
-cat(make_interp_table(
+spline_table <- make_interp_table(
   rev_spline, exp_spline, all_spline,
   rev_spline2, exp_spline2, all_spline2,
   rev_spline3, exp_spline3, all_spline3,
@@ -239,4 +240,11 @@ cat(make_interp_table(
   method_label = "Spline Interpolation",
   caption      = "Main Model with Spline Interpolation",
   label        = "tab:spline_int"
-))
+)
+
+cat(linear_table)
+cat("\n\n")
+cat(spline_table)
+
+writeLines(linear_table, paste0(tablepath, "linear_int_table.tex"))
+writeLines(spline_table, paste0(tablepath, "spline_int_table.tex"))

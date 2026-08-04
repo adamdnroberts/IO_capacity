@@ -47,9 +47,33 @@ staff_nat <- full_join(temp, staff_nat_avg, by = join_by(ysp, country))
 
 staff_nat$ecfin[staff_nat$country == "Croatia" & staff_nat$ysp <= 2013] <- 0
 
+# Interpolate WITHIN country. Without group_by, zoo treats the column as a
+# single series and fills across country boundaries. That was not hypothetical:
+# Romania has no observation at ysp 2011.5 or 2012.0, and those rows were being
+# filled from Portugal's last value, which immediately precedes Romania in the
+# row order -- giving Romania an ecfin_int of 22 and 23 drawn from another
+# country's staff count.
+#
+# Passing x = ysp makes the interpolation respect the time spacing rather than
+# row position, and na.rm = FALSE leaves a leading gap missing rather than
+# carrying a neighbour's value into it.
+#
+# "Other" is the bucket for staff whose nationality code did not match a
+# country. It is excluded from `countries` above, but the full_join re-admits
+# it, so it was sitting in the same vector being interpolated.
 staff_nat <- staff_nat %>%
-  mutate(ecfin_int = na.approx(ecfin), ecfin_spline = na.spline(ecfin))
+  filter(country != "Other") %>%
+  arrange(country, ysp) %>%
+  group_by(country) %>%
+  mutate(
+    ecfin_int = na.approx(ecfin, x = ysp, na.rm = FALSE),
+    ecfin_spline = na.spline(ecfin, x = ysp)
+  ) %>%
+  ungroup()
 
+# Spline interpolation can undershoot below zero; the appendix documents this.
 staff_nat$ecfin_spline[staff_nat$ecfin_spline < 0] <- 0
+
+stopifnot(!anyDuplicated(staff_nat[, c("country", "ysp")]))
 
 save(staff_nat, file = "~/EU_capacity/data/staff_nat.Rdata")

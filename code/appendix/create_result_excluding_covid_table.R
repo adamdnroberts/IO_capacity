@@ -4,6 +4,7 @@ library(fixest)
 
 # --- Load data ----
 datapath <- "~/EU_capacity/data/"
+tablepath <- "~/EU_capacity/overleaf/tables/"
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
@@ -26,14 +27,31 @@ overlapping_titles <- c(
 )
 dfpg <- dfpg %>% filter(!title %in% overlapping_titles)
 
-# --- Remove 2020–2022 forecasts for appendix ----
+# --- Remove COVID-affected forecasts for the appendix ----
+# The rule stated in the appendix is: drop any forecast made FOR 2020 or 2021,
+# and any forecast made IN 2020 or 2021. Both conditions are written out here
+# rather than hand-enumerated by vintage and horizon.
+#
+# The previous version enumerated the target-year cases individually and missed
+# two of them: Spring 2018 at py = 2 (which targets 2020) and Spring 2019 at
+# py = 2 (which targets 2021). Those 1,510 rows stayed in a sample described as
+# excluding forecasts for the pandemic years.
+COVID_YEARS <- c(2020, 2021)
+
 dfpg_covid <- dfpg %>%
+  mutate(
+    target_year = floor(ysp) + py,
+    vintage_year = floor(ysp)
+  ) %>%
   filter(
-    !(ysp == 2018.5 & py == 2),
-    !(ysp == 2019 & py == 1),
-    !(ysp == 2019.5 & py %in% c(1, 2)),
-    !(ysp >= 2020 & ysp <= 2021.5)
+    !target_year %in% COVID_YEARS,
+    !vintage_year %in% COVID_YEARS
   )
+
+stopifnot(
+  !any((floor(dfpg_covid$ysp) + dfpg_covid$py) %in% COVID_YEARS),
+  !any(floor(dfpg_covid$ysp) %in% COVID_YEARS)
+)
 
 # Subsets
 dfpg_no_a_covid <- dfpg_covid %>% filter(aeoy == 0)
@@ -165,3 +183,9 @@ lines <- c(
 )
 
 cat(paste(lines, collapse = "\n"), "\n")
+
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(
+  paste(lines, collapse = "\n"),
+  paste0(tablepath, "exclude_covid_table.tex")
+)

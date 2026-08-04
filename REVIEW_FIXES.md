@@ -393,15 +393,31 @@ No `run_all.R`, no `Makefile`, zero `source()` calls. Build order exists only in
 CLAUDE.md prose, and CLAUDE.md is gitignored. A draft `run_all.R` was proposed in
 the structure review.
 
-### 14. Interpolation not grouped by country — **OPEN**
+### 14. Interpolation not grouped by country — **DONE**
 
 `code/creating dataset/create_ecfin_variable.R:50-51`
 
-`na.approx`/`na.spline` with no `group_by(country)`. Works **today by luck**:
-`expand.grid` orders rows country-major and every country has a non-missing
-value at the first and last grid point (Croatia via the hard-coded 0 at line 48).
-Breaks silently the moment a country lacks a leading or trailing observation.
-`create_population_variable.R:71-72` does the same operation correctly.
+`na.approx`/`na.spline` with no `group_by(country)`.
+
+**This was live, not latent.** The earlier review called it "correct today by
+luck" on the assumption that every country has a non-missing value at the first
+and last grid point. **Romania does not**: it has no observation at ysp 2011.5
+or 2012.0, and those rows were being filled from **Portugal's** last value,
+which immediately precedes Romania in the row order -- giving Romania an
+`ecfin_int` of 22 and 23 taken from another country's staff count, and an
+`ecfin_spline` of 19.67.
+
+*Fix:* `filter(country != "Other")`, `arrange`, `group_by(country)`,
+`na.approx(..., x = ysp, na.rm = FALSE)` and `na.spline(..., x = ysp)`, plus a
+key-uniqueness assertion. Passing `x = ysp` also makes the interpolation respect
+time spacing rather than row position.
+
+*Effect:* the main table is **byte-identical** (it uses raw `ecfin`). The
+published interpolation robustness tables move: linear Panel A goes from
+-0.031/-0.022/-0.027 to -0.029/-0.021/-0.026, and N now differs between the
+linear and spline tables (9,792 vs 9,822) because linear correctly leaves
+Romania's leading gap missing while spline extrapolates within Romania.
+Previously both were 9,479, with the gap silently filled from Portugal.
 
 Also: `countries` at line 41 excludes `"Other"`, but the `full_join` at line 46
 readmits it, appending it to the same interpolated vector.
@@ -496,7 +512,8 @@ the estimation sample is documented for anyone reading the code.
 - **`create_EPU_model_table.R` duplicated `\label{tab:main_model}`.** This one
   mattered: the EPU table *is* published (appendix `tab:epu_model`), and the
   appendix had been hand-corrected while the script had not. Regenerating would
-  have produced two tables with the same label, so every `ef{tab:main_model}`
+  have produced two tables with the same label, so every `
+ef{tab:main_model}`
   would have resolved to whichever came second. Label and caption fixed, table
   wired to `overleaf/tables/epu_table.tex`, appendix now `\input`s it. Its
   pasted numbers were stale (N 5,038 against a current 5,434). Its commented-out
