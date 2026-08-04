@@ -61,19 +61,36 @@ staff_nat$ecfin[staff_nat$country == "Croatia" & staff_nat$ysp <= 2013] <- 0
 # "Other" is the bucket for staff whose nationality code did not match a
 # country. It is excluded from `countries` above, but the full_join re-admits
 # it, so it was sitting in the same vector being interpolated.
+#
+# The dplyr:: prefixes are load-bearing, not decoration. `create_staff_
+# nationality_dataset.R` calls library(plyr) after dplyr is already attached, so
+# its own library(dplyr) is a no-op and plyr ends up ABOVE dplyr on the search
+# path. Bare `mutate` then resolves to plyr::mutate, which silently ignores
+# group_by() -- the interpolation runs on all 28 countries as one series with 28
+# duplicate values at every ysp, and the result is nonsense (Austria's 2011.5
+# value came out as 19.4 against an observed 17). It only ever worked because
+# the scripts were run interactively in an order that left dplyr on top.
 staff_nat <- staff_nat %>%
-  filter(country != "Other") %>%
-  arrange(country, ysp) %>%
-  group_by(country) %>%
-  mutate(
+  dplyr::filter(country != "Other") %>%
+  dplyr::arrange(country, ysp) %>%
+  dplyr::group_by(country) %>%
+  dplyr::mutate(
     ecfin_int = na.approx(ecfin, x = ysp, na.rm = FALSE),
     ecfin_spline = na.spline(ecfin, x = ysp)
   ) %>%
-  ungroup()
+  dplyr::ungroup()
 
 # Spline interpolation can undershoot below zero; the appendix documents this.
 staff_nat$ecfin_spline[staff_nat$ecfin_spline < 0] <- 0
 
 stopifnot(!anyDuplicated(staff_nat[, c("country", "ysp")]))
+
+# Interpolation fills gaps; it must never move an observed value. This is the
+# check that would have caught the masking bug above immediately.
+observed <- !is.na(staff_nat$ecfin)
+stopifnot(
+  all(abs(staff_nat$ecfin_int[observed] - staff_nat$ecfin[observed]) < 1e-8),
+  all(abs(staff_nat$ecfin_spline[observed] - staff_nat$ecfin[observed]) < 1e-8)
+)
 
 save(staff_nat, file = "~/EU_capacity/data/staff_nat.Rdata")

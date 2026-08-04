@@ -387,11 +387,60 @@ revenue range as "between -0.033 and -0.036"; Panel B is now -0.037 after the
 Czechia fix. Deferred to a full prose pass once the remaining data fixes land.
 The Ireland worked example is unaffected (it uses Panel C, unchanged).
 
-### 13. No master script — **OPEN**
+### 13. No master script — **DONE**
 
-No `run_all.R`, no `Makefile`, zero `source()` calls. Build order exists only in
-CLAUDE.md prose, and CLAUDE.md is gitignored. A draft `run_all.R` was proposed in
-the structure review.
+No `run_all.R`, no `Makefile`, zero `source()` calls. Build order existed only in
+CLAUDE.md prose, and CLAUDE.md is gitignored.
+
+*Fix:* `run_all.R` at the repository root. 26 scripts in four stages —
+`data`, `paper`, `appendix`, plus optional `exploratory` and `fetch` — selectable
+from the command line (`Rscript run_all.R data paper`). It checks that `~`
+resolves to the project and that every required package is installed *before*
+running anything, times each script, and exits non-zero naming the log of
+whatever failed.
+
+**Each script runs in its own R process.** The first version sourced them into
+one session with a fresh environment per script, which is the usual advice, and
+it produced **wrong numbers**. See below.
+
+#### The bug the master script found on its first run
+
+`create_staff_nationality_dataset.R:1-2` calls `library(plyr)` and then
+`library(dplyr)`. Run on its own that is harmless — dplyr attaches last and wins.
+But `clean_data11_14.R` has already attached dplyr by then, so the second
+`library(dplyr)` is a **no-op that does not re-order the search path**, and plyr
+ends up *above* dplyr for the rest of the session:
+
+```
+[1] ".GlobalEnv"  "package:zoo"  "package:lubridate"  "package:plyr"  "package:dplyr"  ...
+mutate  resolves to: plyr
+arrange resolves to: plyr
+group_by resolves to: dplyr
+```
+
+`create_ecfin_variable.R` then gets `plyr::mutate`, which **silently ignores
+`group_by()`**. The item-14 fix was still in the file and still correct; it just
+was not being executed. All 28 countries were interpolated as one series with 28
+duplicate values at every `ysp` — `na.approx` warned about ties and returned
+garbage. Austria's `ecfin_int` at ysp 2011.5 came out **19.41 against an observed
+`ecfin` of 17**, and 0.00 at 2012.0 where both neighbours are 17.
+
+Nothing published was wrong: the committed `staff_nat.Rdata` was built
+interactively with dplyr on top and is correct. The point is that **it was
+correct by run order**, and no output said so.
+
+*Fix, two parts:*
+1. `create_ecfin_variable.R` now qualifies every verb (`dplyr::mutate`,
+   `dplyr::arrange`, `dplyr::filter`, `dplyr::group_by`, `dplyr::ungroup`) with
+   a comment saying why the prefixes are load-bearing, plus an assertion that
+   **interpolation never moves an observed value** — the check that would have
+   caught this in one second.
+2. `run_all.R` gives each script its own process, so the search path cannot leak
+   between scripts at all. This is the structural fix; part 1 protects the script
+   for anyone running it by hand.
+
+*Verified:* after the fix, a full clean rebuild reproduces **all 10 generated
+`.tex` tables byte-identically**.
 
 ### 14. Interpolation not grouped by country — **DONE**
 
