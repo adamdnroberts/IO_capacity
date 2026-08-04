@@ -37,7 +37,7 @@ Confirmed the rename is the *only* member-state label change across all
 vintages 2011–2024. Other varying labels are non-members (Macedonia FYR →
 North Macedonia, Korea, Canada, New Zealand) or aggregates.
 
-### 2. Autumn 2022 vintage contributes zero observations — **OPEN**
+### 2. Autumn 2022 vintage contributes zero observations — **DONE**
 
 `code/creating dataset/create_population_variable.R:40-62`
 
@@ -49,8 +49,36 @@ recent full vintage, covering the post-COVID inflation surge where forecast
 errors are largest, is absent from the published table and the notes don't say
 so.
 
-*Fix:* extend the World Bank pull and interpolation grid to cover the panel;
-assert coverage at the merge in `create_dataset.R`.
+*Verified before fix:* all 2,886 estimation-eligible rows at ysp 2022.5 had
+`pop_int = NA`.
+
+*Fix:* `PANEL_MAX_YSP <- 2023` introduced; the World Bank fetch now runs to
+`PANEL_MAX_YSP + 1` so the final half-year has a real anchor on both sides, and
+the output grid is trimmed back to `PANEL_MAX_YSP` so no orphan rows are created
+by the `full_join` in `create_dataset.R`. Added assertions on non-missingness,
+coverage, and key uniqueness.
+
+The dormant UK/Greece filter was **deleted**. It was a no-op (data stopped at
+2022) that would have activated the moment the fetch was extended. Measured
+first: it removes **0 UK rows** — the UK has no estimation-eligible observations
+after ysp 2020.5, for unrelated reasons — and **50 Greek rows**. The World Bank
+has both countries through 2025, so it was not about data availability.
+
+*Verified after fix:* `population.csv` covers ysp 2011–2023 for all 28 countries
+with zero missing `pop_int`. Panel orphan rows unchanged at 156; total rows
+unchanged. Missingness at ysp 2022.5 fell from 2,886/2,886 to 621/2,886, the
+residual being non-EU countries (item 7).
+
+*Effect on results:* N rises to 11,089 / 8,533 / 6,199 in column (3) of Panels
+A/B/C (+648 / +324 / +324). Coefficients shrink 5–8% in magnitude but gain
+precision: in Panel C, columns (1), (2) and (4) move from ** to ***.
+
+**Prose impact — needs attention in the full pass.** Beyond stale digits:
+- `main_sage_template.tex:254` says "the lack of significance at $\alpha = 0.05$
+  in two expenditure specifications" — the Panel C expenditure coefficient is now
+  significant at 0.01, so the sentence describes a state that no longer exists.
+- `main_sage_template.tex:258` quotes ranges for all three columns, all shifted,
+  and the Ireland worked example derives from Panel C coefficients that moved.
 
 ### 3. Two forecast vintages built but never bound in — **OPEN**
 
