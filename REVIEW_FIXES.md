@@ -116,15 +116,27 @@ Panel B column (2) loses significance (-0.015* to -0.013, n.s.).
 An earlier estimate of ~1,900 recovered observations for Spring 2014 was wrong:
 it checked forecast and truth availability but not staff coverage. See item 17.
 
-### 4. Copy-paste error in staff bulletin date stamp — **OPEN**
+### 4. Copy-paste error in staff bulletin date stamp — **DONE**
 
 `code/creating dataset/create_staff_nationality_dataset.R:73`
 
 `rbind(nat19_4, c("date", rep("2019-04-03", length(nat19_1) - 1)))` — sizes the
 April 2019 date row from the **January** bulletin. Nineteen sibling blocks use
 their own object. If column counts differ between the two files this recycles or
-errors; `ecfin` for 2019H1 would shift for every country. Also note the file
-`20190401_*.csv` is dated `2019-04-03` where every other entry uses the 1st.
+errors; `ecfin` for 2019H1 would shift for every country.
+
+*Verified:* both files have 30 columns, so the bug was **latent, not live** --
+the date row came out correct. Fixed to use `nat19_4`; regenerating
+`Commission_nationalities.Rdata` produces a byte-identical object
+(`identical() == TRUE`), confirming no result changes.
+
+The file `20190401_*.csv` is dated `2019-04-03` where every other entry uses
+the 1st. Also cosmetic: the season is derived from `month <= 6`
+(`create_staff_nationality_dataset.R:239`), so both dates land in spring 2019.
+
+Still worth doing: the twenty near-identical read-and-stamp blocks should be
+one `Map()` over a file/date table. This bug was only harmless by luck, and
+the same shape of error would not be visible in the output.
 
 ### 5. 156 rows with `title = NA` enter the estimation array — **OPEN**
 

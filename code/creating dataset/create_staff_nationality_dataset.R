@@ -70,7 +70,7 @@ nat19_4 <- read.csv(
   paste0(rawpath, "20190401_NationalityAndDG.csv"),
   header = FALSE
 )
-nat19_4 <- rbind(nat19_4, c("date", rep("2019-04-03", length(nat19_1) - 1)))
+nat19_4 <- rbind(nat19_4, c("date", rep("2019-04-03", length(nat19_4) - 1)))
 
 nat20 <- read.csv(
   paste0(rawpath, "01072020_NationalityAndDG.csv"),
