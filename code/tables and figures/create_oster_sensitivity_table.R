@@ -5,6 +5,7 @@ library(data.table)
 library(ggplot2)
 
 datapath <- "~/EU_capacity/data/"
+tablepath <- "~/EU_capacity/overleaf/tables/"
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
@@ -121,12 +122,12 @@ tex_lines <- c(
   "\\tabularnewline",
   "\\midrule \\midrule",
   paste0(
-    "Short $\\hat{\\beta}$ (FE only)     & ",
+    "Controls ommitted $\\hat{\\beta}$ (FE only)     & ",
     fmt3(pull(res_delta, "Uncontrolled Coefficient")),
     "\\\\"
   ),
   paste0(
-    "Long $\\hat{\\beta}$ (+ controls)   & ",
+    "Fully specified $\\hat{\\beta}$ (+ controls)   & ",
     fmt3(pull(res_delta, "Controlled Coefficient")),
     "\\\\"
   ),
@@ -162,7 +163,7 @@ tex_lines <- c(
     "\\\\"
   ),
   "\\midrule \\midrule",
-  "\\multicolumn{2}{p{10cm}}{Panel C (EOY forecasts excluded), revenue and expenditure combined. Fixed effects partialled out via FWL theorem before applying \\citet{oster2019unobservable} estimator.}\\\\",
+  "\\multicolumn{2}{p{10cm}}{Panel C (EOY forecasts excluded), including revenue and expenditure.}\\\\",
   "\\end{tabular}",
   "\\par\\endgroup",
   "\\caption{Oster (2019) Sensitivity Analysis for the National Expertise Coefficient}",
@@ -172,10 +173,8 @@ tex_lines <- c(
 
 cat(paste(tex_lines, collapse = "\n"), "\n")
 
-# writeLines(
-#   paste(tex_lines, collapse = "\n"),
-#   "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/tables/oster_table.tex"
-# )
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(paste(tex_lines, collapse = "\n"), paste0(tablepath, "oster_table.tex"))
 
 # ---------------------------------------------------------------------------
 # Plot: delta* across range of R_max values

@@ -113,3 +113,24 @@ two_sided_test <- (length(coef) -
 t_vals <- as.numeric(t_stat)
 one_sided_t <- mean(t_vals <= true_t)
 two_sided_t <- mean(abs(t_vals) >= abs(true_t))
+
+# Store the draws. This loop is 10,000 model fits; without saving them, redrawing
+# the histogram or recomputing a p-value means running the whole thing again.
+saveRDS(
+  list(
+    coef = as.numeric(coef), t_stat = t_vals,
+    r2 = as.numeric(r2), wr2 = as.numeric(wr2),
+    true_coef = true_coef, true_t = true_t, seed = 42, n_sim = 10000
+  ),
+  paste0(datapath, "randomization_draws.rds")
+)
+
+# The p-values were previously computed and then discarded when the session
+# ended, so the numbers behind the figure were not recoverable.
+cat("\n--- Randomization inference (", length(t_vals), " draws, seed 42) ---\n", sep = "")
+cat("true coefficient       :", signif(true_coef, 4), "\n")
+cat("true t-statistic       :", signif(true_t, 4), "\n")
+cat("p, one-sided (raw coef):", one_sided_test, "\n")
+cat("p, two-sided (raw coef):", two_sided_test, "\n")
+cat("p, one-sided (t-stat)  :", one_sided_t, "\n")
+cat("p, two-sided (t-stat)  :", two_sided_t, "\n")
