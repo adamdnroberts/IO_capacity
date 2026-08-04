@@ -179,10 +179,23 @@ actually in the paper:
   evidence of how far the two had drifted.
 - footer wording aligned to the paper: "Clustered (state)" not "(country)".
 
+Note on repo layout: `overleaf/` is a **nested git repo** with its own remote
+(`git.overleaf.com/667ef85d...`), which is why the parent `.gitignore` excludes
+it. Paper-side changes are committed and pushed there, not to this repo. The
+template + `tables/` change is overleaf commit `7c35113`.
+
+`main.tex` was superseded by `main_sage_template.tex` and has been deleted in
+the overleaf repo (same commit); it carried a stale hand-pasted copy of this
+table. Nothing referenced it. Recoverable from history.
+
 Still open: `create_summary_stats_table.R`, `create_oster_sensitivity_table.R`,
 `create_alt_outcome_result_table.R`, `create_EPU_model_table.R`,
-`create_bonds_analysis_table.R`, and the same pasted block in `main.tex`
-(which is a separate file from `main_sage_template.tex` and still has it inline).
+`create_bonds_analysis_table.R`.
+
+**Prose not yet updated.** `main_sage_template.tex:258` still quotes the
+revenue range as "between -0.033 and -0.036"; Panel B is now -0.037 after the
+Czechia fix. Deferred to a full prose pass once the remaining data fixes land.
+The Ireland worked example is unaffected (it uses Panel C, unchanged).
 
 ### 13. No master script — **OPEN**
 
