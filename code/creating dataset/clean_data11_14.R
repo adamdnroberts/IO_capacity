@@ -156,11 +156,34 @@ a14nt <- data.frame(
   'p2' = a14_full$new2016
 )
 
-a17_full <- read.csv(
-  "~/EU_capacity/raw/Projections/Autumn 2017/AMECO16.TXT",
+# Spring 2024 is the same release that supplies the actuals for every 2015-2023
+# target in clean_data15_23.R (`true3`), so using it here puts all ESA 2010
+# targets on a single benchmark.
+#
+# This replaces the Autumn 2017 release, which used to supply the 2014-2016
+# actuals. Autumn 2017 was the newest vintage available when this script was
+# written and is the earliest release in which 2016 is an outturn rather than a
+# forecast, so it was a reasonable choice at the time. But it left the panel
+# with three truth vintages where the paper describes two, and -- because target
+# years 2015 and 2016 are reached both from the Autumn 2014 vintage and from the
+# 2015+ vintages -- it gave 87% of the country x title cells for those years two
+# different `true` values depending on which forecast round they came from,
+# partially confounding the benchmark with the forecast horizon.
+s24_full <- read.csv(
+  "~/EU_capacity/raw/Projections/Spring 2024/AMECO16.TXT",
   sep = ";"
 )
-a17_full$new2019 <- as.numeric(a17_full$X2019)
+
+# AMECO renamed "Czech Republic" to "Czechia" in the Spring 2019 release, so the
+# Autumn 2014 vintage carries the old label and Spring 2024 the new one. Since
+# `country` is part of the merge key, without this every Czech row would match
+# nothing and be dropped by merge()'s default inner join.
+standardize_country <- function(x) {
+  x <- trimws(as.character(x))
+  x[x == "Czech Republic"] <- "Czechia"
+  x
+}
+a14nt$country <- standardize_country(a14nt$country)
 
 #true values from s14
 true1 <- data.frame(
@@ -173,15 +196,15 @@ true1 <- data.frame(
   'true13' = s14_full$X2013
 )
 
-#true values from a17
+#true values from s24
 true2 <- data.frame(
-  'country' = a17_full$COUNTRY,
-  'code' = a17_full$CODE,
-  'title' = a17_full$TITLE,
-  'unit' = a17_full$UNIT,
-  'true14' = a17_full$X2014,
-  'true15' = a17_full$X2015,
-  'true16' = a17_full$X2016
+  'country' = standardize_country(s24_full$COUNTRY),
+  'code' = s24_full$CODE,
+  'title' = s24_full$TITLE,
+  'unit' = s24_full$UNIT,
+  'true14' = s24_full$X2014,
+  'true15' = s24_full$X2015,
+  'true16' = s24_full$X2016
 )
 
 ## MERGING
@@ -231,6 +254,18 @@ y13 <- merge_and_summarize(s13nt, a13nt, true1, c("13", "", ""))
 # Merge and summarize for a14. Spring 2014 is deliberately excluded; see below.
 a14 <- merge(a14nt, true2, by = c("country", "title", "unit", "code"))
 y14 <- a14 %>% rename(true0 = true14, true1 = true15, true2 = true16)
+
+# No EU member state may vanish in that merge. This is the guard that would have
+# caught the Czech drop described above.
+eu_in_both <- intersect(
+  intersect(a14nt$country, true2$country),
+  c("Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia",
+    "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
+    "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg",
+    "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia",
+    "Slovenia", "Spain", "Sweden", "United Kingdom")
+)
+stopifnot(all(eu_in_both %in% y14$country))
 
 # Why Spring 2014 (s14nt) is not in the panel, leaving ysp 2014 empty.
 #
