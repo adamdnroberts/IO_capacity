@@ -115,8 +115,19 @@ stopifnot(setequal(unique(df_euro$country), EU_MEMBERS))
 
 load("~/EU_capacity/data/guide_rate.Rdata")
 
-dfg <- full_join(df_euro, gne_merge, by = c("country", "ysp")) %>%
+# left_join, not full_join: gne_merge covers country-ysp combinations that the
+# forecast panel does not (ysp 2014, which has no vintage -- see clean_data11_14.R
+# for why). A full_join turns those into rows with a missing `title`, which then
+# pass the `!(title %in% vars_to_exclude)` filter below because `NA %in% x` is
+# FALSE, and so reach the estimation array with a missing key. They contribute
+# nothing to feols but corrupt any count or summary computed on the file.
+dfg <- left_join(
+  df_euro, gne_merge,
+  by = c("country", "ysp"), relationship = "many-to-one"
+) %>%
   select(which(!duplicated(names(.))))
+
+stopifnot(nrow(dfg) == nrow(df_euro), !anyNA(dfg$title))
 
 p0 <- subset(
   dfg,

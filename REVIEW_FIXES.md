@@ -80,7 +80,7 @@ precision: in Panel C, columns (1), (2) and (4) move from ** to ***.
 - `main_sage_template.tex:258` quotes ranges for all three columns, all shifted,
   and the Ireland worked example derives from Panel C coefficients that moved.
 
-### 3. Two forecast vintages built but never bound in — **DONE**
+### 3. Two forecast vintages built but never bound in — **DONE (Spring 2023 only)**
 
 `clean_data11_14.R:126` (`s14nt`), `clean_data15_23.R:326` (`s23nt`)
 
@@ -88,25 +88,24 @@ Both were constructed and used only as truth sources; neither was included in
 the `bind_rows` forming the panel, so ysp 2014 and 2023 were **empty** while the
 project claimed 2011–2023 coverage (24 of 26 half-years).
 
-**Spring 2014.** Was excluded deliberately (`# s14 commented out`). Root cause
-found: AMECO relabelled titles from `:- ESA 1995` to `:- ESA 2010` between
-Spring and Autumn 2014. Spring 2014 shares all 47 title strings with the
-2011–2013 vintages but only 5 with Autumn 2017, the `true2` source, so the
-four-key merge recovered 84 EU rows against 1,008 merging on `code` alone.
-Now merged on `code` (unique in both frames, asserted). `create_dataset.R:25`
-splits the ESA suffix off the title, so the rows align with the rest of the
-panel and get correct `rev`/`exp` flags.
+**Spring 2014 — bound in, then REVERTED.** It was briefly merged on `code`
+(the four-key merge fails because AMECO relabelled titles from `:- ESA 1995`
+to `:- ESA 2010` at the Autumn 2014 release). But that scored **ESA 1995
+forecasts against ESA 2010 actuals**, the exact mismatch the two-database
+design exists to avoid. Spring 2014's targets are 2014 and 2015, for which no
+ESA 1995 outturn exists: `true1` is built from the Spring 2014 file itself and
+cannot contain them, and every later release is ESA 2010. There is no clean
+benchmark, which is very likely the author's original reason for excluding it.
+Reverted; ysp 2014 is empty **by design**, and `clean_data11_14.R` now records
+why. It contributed zero estimation rows either way (no staff data at ysp
+2014), and both tables were byte-identical before and after the revert.
 
 **Spring 2023.** Bound with `py=0` only. Its `p1` targets 2024, and Spring
 2024's 2024 column is itself a forecast, not an outturn — including it would
 compare forecast against forecast. Documented in the script for when a vintage
 carrying 2024 actuals appears.
 
-*Verified:* Austria now has 81 rows at every ysp from 2011 to 2023. ysp 2014
-behaves like any other spring vintage (`py` 0 and 1, none at 2); ysp 2023 has
-`py=0` only. **Orphan rows fell from 156 to 0** — a side effect, since ysp 2014
-and 2023 now have real forecast rows for the `guide_rate` join to match, which
-resolves most of item 5.
+*Verified:* ysp 2023 carries `py=0` only, as intended. ysp 2014 is empty.
 
 *Effect on results:* N rises to 11,413 / 8,857 in column (3) of Panels A and B.
 **Panel C is completely unchanged**, as Spring 2023 contributes `py=0` only.
@@ -138,7 +137,7 @@ Still worth doing: the twenty near-identical read-and-stamp blocks should be
 one `Map()` over a file/date table. This bug was only harmless by luck, and
 the same shape of error would not be visible in the output.
 
-### 5. 156 rows with `title = NA` enter the estimation array — **OPEN**
+### 5. 156 rows with `title = NA` enter the estimation array — **DONE**
 
 `code/creating dataset/create_dataset.R:105`
 
@@ -147,8 +146,13 @@ orphans survive into `dfpg`. They pass `!(title %in% vars_to_exclude)` because
 `NA %in% x` is `FALSE`. They contribute nothing to `feols` but corrupt any
 `nrow()`, `distinct()`, or summary computed on the file — see item 6.
 
-*Fix:* `left_join(..., relationship = "many-to-one")` plus a key assertion
-before `save`.
+*Fix:* `full_join` replaced with
+`left_join(..., relationship = "many-to-one")` plus
+`stopifnot(nrow(dfg) == nrow(df_euro), !anyNA(dfg$title))`.
+
+*Verified:* orphan rows are now **0** and the panel is 54,177 rows. Both the
+main table and the summary statistics table are byte-identical, confirming these
+rows never entered a regression — they only corrupted counts and summaries.
 
 ### 6. Summary statistics computed at the wrong key — **DONE**
 
@@ -207,7 +211,7 @@ in any robustness check and non-members enter an "EU member state" regression.
 *Fix:* filter explicitly on `EU_MEMBERS` in the build (the vector now exists in
 `clean_data15_23.R` — move it somewhere shared).
 
-### 8. Outcome measured against three different truth vintages — **OPEN**
+### 8. Outcome measured against three different truth vintages — **DOCUMENTED / WONTFIX**
 
 `clean_data11_14.R:166-185`, `clean_data15_23.R:346-360`
 
@@ -217,8 +221,26 @@ accounts revisions in the first block and up to 9 in the second — `err_sq` is
 not the same quantity across the panel. `ysp` fixed effects absorb the level
 shift but not differential revision behaviour across countries.
 
-Also breaks `create_theil_u_results.R:39`, where `true_naive = first(true)`
-assumes `true` is constant within country × title × forecast year.
+**Decision: left as published.** The two-database split is deliberate and the
+paper states it — an ESA 1995 forecast must be scored against an ESA 1995
+actual, or an accounting-definition change is measured as forecast error. The
+ESA break falls exactly between Spring and Autumn 2014, confirmed against the
+raw files.
+
+What remains, recorded rather than changed:
+- There are **three** vintages, not the two the paper describes. `true2` is
+  Autumn 2017, supplying the 2014 actual. It appears to be a historical artifact
+  — the newest release available when that script was written. Spring 2024 *does*
+  contain a 2014 column, so extracting `true14` from `s24_full` would put every
+  ESA 2010 target on one benchmark.
+- Because of that, **87% of country × title × target-year cells for targets
+  2015–2016 carry two different `true` values** (e.g. Austria 2015: 50.19 vs
+  50.24, and 0.51 vs 0.62). Target years 2015–2016 are reached both from the
+  Autumn 2014 vintage (scored on Autumn 2017) and from the 2015+ vintages
+  (scored on Spring 2024), so the benchmark is partly confounded with `py`.
+  Roughly 2,457 of 11,413 estimation rows are affected.
+- The `first(true)` bug in `create_theil_u_results.R:39` is moot — that script
+  has been **deleted** (see item 18).
 
 ---
 
@@ -325,6 +347,16 @@ Note: the named `overlapping_titles` literal itself is byte-identical everywhere
 it appears — it has not drifted. The problem is that this script doesn't use it.
 
 *Fix:* define the sample once in `create_dataset.R`.
+
+### 18. Theil's U analysis deleted — **DONE**
+
+`create_theil_u_results.R` computed Theil's U (forecast error relative to a
+naive no-change benchmark) and re-ran the `ecfin` models on it. Grepping all six
+`.tex` files found **no reference to it anywhere** — not the paper, not the
+appendix, not the response to reviewers — and nothing `\includegraphics`ed
+`theil_u_plot.pdf`. It was unpublished exploratory work carrying a real bug
+(`first(true)`, item 8), so it was deleted at the author's direction along with
+its two orphaned PDFs. Recoverable from git history.
 
 ### 17. Raw `ecfin` is missing for a third of the panel's vintages — **OPEN**
 
