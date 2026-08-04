@@ -185,7 +185,8 @@ coherent sample. Only EPU legitimately differs (212), being available for 14
 member states.
 
 Wired to file: writes `overleaf/tables/summary_stats.tex` with the
-`esizebox{	extwidth}` wrapper matching the paper, and
+`
+esizebox{	extwidth}` wrapper matching the paper, and
 `main_sage_template.tex:211` now `\input`s it. Template compiles clean.
 
 Note for the prose pass: line 207 says "the number of observations varies across
@@ -193,7 +194,7 @@ variables with data availability", which is now largely untrue -- only EPU
 differs. That line also contains a typo, "a standard deviation **fo** roughly
 20".
 
-### 7. Estimation sample defined by accident — **OPEN**
+### 7. Estimation sample defined by accident — **DONE**
 
 `code/creating dataset/create_dataset.R:101`
 

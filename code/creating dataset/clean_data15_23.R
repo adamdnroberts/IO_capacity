@@ -585,13 +585,7 @@ full_dataset15_23 <- bind_rows(y15, y16, y17, y18, y19, y20, y21, y22, y23)
 # area", "European Union") legitimately fail to match, because their series
 # `code` encodes the membership count (EA19 -> EA20) and so changes across
 # vintages. Aggregates never enter the estimation sample.
-EU_MEMBERS <- c(
-  "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia",
-  "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
-  "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg",
-  "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia",
-  "Slovenia", "Spain", "Sweden", "United Kingdom"
-)
+source("~/EU_capacity/code/creating dataset/eu_members.R")
 
 for (nm in ls(pattern = "^[sa](1[5-9]|2[0-3])nt$")) {
   vintage <- get(nm)

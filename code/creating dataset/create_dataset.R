@@ -98,7 +98,20 @@ df <- df_merged3 %>%
 # -------------------------
 # 5. Euro-only subset + guiding rate
 # -------------------------
-df_euro <- dplyr::filter(df, unit == "Mrd ECU/EUR")
+# Restrict to EU member states explicitly. AMECO's euro-denominated block also
+# carries Norway, Switzerland, Iceland, Serbia, Montenegro, Albania, Turkey, the
+# United States, Japan and Canada. These were previously excluded only as a side
+# effect of population.csv's coverage: log(pop_int) is in every specification, so
+# feols dropped them for a missing regressor. That made the estimation sample a
+# consequence of a covariate's availability rather than a stated choice -- drop
+# log(pop_int) from any robustness check and Norway and Switzerland would enter
+# an "EU member state" regression. It also meant descriptive statistics computed
+# on the panel described a different population from the models.
+source("~/EU_capacity/code/creating dataset/eu_members.R")
+
+df_euro <- dplyr::filter(df, unit == "Mrd ECU/EUR", country %in% EU_MEMBERS)
+
+stopifnot(setequal(unique(df_euro$country), EU_MEMBERS))
 
 load("~/EU_capacity/data/guide_rate.Rdata")
 
