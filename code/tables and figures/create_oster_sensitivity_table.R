@@ -195,7 +195,7 @@ oster_plot <- o_delta_rsq_viz(
     breaks = r2_long * seq(2, 10, by = 2),
     labels = paste0(seq(2, 10, by = 2), "×")
   ) +
-  xlab(expression(R[max] ~ "(multiples of long-model within " * R^2 * ")")) +
+  xlab(expression(R[max] ~ "(multiples of fully specified model within " * R^2 * ")")) +
   theme_minimal(base_size = 11) +
   theme(panel.grid.minor = element_blank())
 

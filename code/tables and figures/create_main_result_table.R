@@ -47,12 +47,21 @@ run_models <- function(data) {
     ),
     all = feols(
       log(err_sq) ~
-        ecfin + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+        ecfin +
+          log(pop_int) +
+          log(gdp) +
+          gdppc |
+          country + ysp + title + py,
       data = data %>% filter(rev == 1 | exp == 1)
     ),
     all_epu = feols(
       log(err_sq) ~
-        ecfin + epu + log(pop_int) + log(gdp) + gdppc | country + ysp + title + py,
+        ecfin +
+          epu +
+          log(pop_int) +
+          log(gdp) +
+          gdppc |
+          country + ysp + title + py,
       data = data %>% filter(rev == 1 | exp == 1)
     )
   )
@@ -96,7 +105,8 @@ fmt_coef <- function(s, var) {
   se_val <- se(s)[var]
   pval <- pvalue(s)[var]
   stars <- ifelse(
-    pval < 0.01, "***",
+    pval < 0.01,
+    "***",
     ifelse(pval < 0.05, "**", ifelse(pval < 0.1, "*", ""))
   )
   coef_str <- if (nchar(stars) > 0) {
@@ -139,44 +149,78 @@ make_panel <- function(label, s_rev, s_exp, s_all, s_epu, multicolumn = TRUE) {
     header,
     paste0(
       "National Expertise & ",
-      s_rev$coef_str, " & ", s_exp$coef_str, " & ",
-      s_all$coef_str, " & ", s_epu$coef_str, "\\\\"
+      s_rev$coef_str,
+      " & ",
+      s_exp$coef_str,
+      " & ",
+      s_all$coef_str,
+      " & ",
+      s_epu$coef_str,
+      "\\\\"
     ),
     paste0(
-      "& ", s_rev$se_str, " & ", s_exp$se_str, " & ",
-      s_all$se_str, " & ", s_epu$se_str, "\\\\"
+      "& ",
+      s_rev$se_str,
+      " & ",
+      s_exp$se_str,
+      " & ",
+      s_all$se_str,
+      " & ",
+      s_epu$se_str,
+      "\\\\"
     ),
     paste0("EPU & & & & ", s_epu$epu_coef_str, "\\\\"),
     paste0("& & & & ", s_epu$epu_se_str, "\\\\"),
     "\\midrule",
     paste0(
-      "Observations   & ", s_rev$n_obs, " & ", s_exp$n_obs, " & ",
-      s_all$n_obs, " & ", s_epu$n_obs, "\\\\"
+      "Observations   & ",
+      s_rev$n_obs,
+      " & ",
+      s_exp$n_obs,
+      " & ",
+      s_all$n_obs,
+      " & ",
+      s_epu$n_obs,
+      "\\\\"
     ),
     paste0(
-      "   R$^2$          & ", s_rev$r2, " & ", s_exp$r2, " & ",
-      s_all$r2, " & ", s_epu$r2, "\\\\"
+      "   R$^2$          & ",
+      s_rev$r2,
+      " & ",
+      s_exp$r2,
+      " & ",
+      s_all$r2,
+      " & ",
+      s_epu$r2,
+      "\\\\"
     ),
     paste0(
-      "   Within R$^2$   & ", s_rev$wr2, " & ", s_exp$wr2, " & ",
-      s_all$wr2, " & ", s_epu$wr2, "\\\\"
+      "   Within R$^2$   & ",
+      s_rev$wr2,
+      " & ",
+      s_exp$wr2,
+      " & ",
+      s_all$wr2,
+      " & ",
+      s_epu$wr2,
+      "\\\\"
     )
   )
 }
 
 s <- list(
-  A_rev    = get_model_stats(models$rev),
-  A_exp    = get_model_stats(models$exp),
-  A_all    = get_model_stats(models$all),
-  A_epu    = get_model_stats(models$all_epu, include_epu = TRUE),
-  B_rev    = get_model_stats(models_noA$rev),
-  B_exp    = get_model_stats(models_noA$exp),
-  B_all    = get_model_stats(models_noA$all),
-  B_epu    = get_model_stats(models_noA$all_epu, include_epu = TRUE),
-  C_rev    = get_model_stats(models_noEOY$rev),
-  C_exp    = get_model_stats(models_noEOY$exp),
-  C_all    = get_model_stats(models_noEOY$all),
-  C_epu    = get_model_stats(models_noEOY$all_epu, include_epu = TRUE)
+  A_rev = get_model_stats(models$rev),
+  A_exp = get_model_stats(models$exp),
+  A_all = get_model_stats(models$all),
+  A_epu = get_model_stats(models$all_epu, include_epu = TRUE),
+  B_rev = get_model_stats(models_noA$rev),
+  B_exp = get_model_stats(models_noA$exp),
+  B_all = get_model_stats(models_noA$all),
+  B_epu = get_model_stats(models_noA$all_epu, include_epu = TRUE),
+  C_rev = get_model_stats(models_noEOY$rev),
+  C_exp = get_model_stats(models_noEOY$exp),
+  C_all = get_model_stats(models_noEOY$all),
+  C_epu = get_model_stats(models_noEOY$all_epu, include_epu = TRUE)
 )
 
 tex_lines <- c(
@@ -190,14 +234,30 @@ tex_lines <- c(
   "Forecasts Category: & Revenue & Expenditure & All & All$^{\\dagger}$\\\\",
   "Model: & (1) & (2) & (3) & (4)\\\\",
   "\\midrule",
-  make_panel("Panel A: All forecasts", s$A_rev, s$A_exp, s$A_all, s$A_epu, multicolumn = FALSE),
+  make_panel(
+    "Panel A: All forecasts",
+    s$A_rev,
+    s$A_exp,
+    s$A_all,
+    s$A_epu,
+    multicolumn = FALSE
+  ),
   "\\midrule",
   make_panel(
     "Panel B: Excluding EOY Forecasts made in November",
-    s$B_rev, s$B_exp, s$B_all, s$B_epu
+    s$B_rev,
+    s$B_exp,
+    s$B_all,
+    s$B_epu
   ),
   "\\midrule",
-  make_panel("Panel C: Excluding EOY Forecasts", s$C_rev, s$C_exp, s$C_all, s$C_epu),
+  make_panel(
+    "Panel C: Excluding EOY Forecasts",
+    s$C_rev,
+    s$C_exp,
+    s$C_all,
+    s$C_epu
+  ),
   "\\midrule \\midrule",
   "\\multicolumn{5}{l}{Clustered (country) standard-errors in parentheses}\\\\",
   "\\multicolumn{5}{l}{Fixed effects: econ.\\ indicator, period, state, forecast year}\\\\",
