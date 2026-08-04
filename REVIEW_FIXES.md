@@ -268,12 +268,41 @@ which works only on a case-insensitive filesystem.
 
 *Fix:* one root variable, or `here::here()`.
 
-### 11. Three datasets have no producer — **OPEN**
+### 11. Three datasets have no producer — **PARTLY DONE (guide_rate recovered)**
 
-`data/guide_rate.Rdata` (loaded `create_dataset.R:103`, feeds the **main**
-specification), `data/final_dataset_euro.Rdata`, `data/bonds_with_min.Rdata`.
-No script in the repo builds any of them, so a clean rebuild errors and the
-trace from main table back to raw input dead-ends.
+`data/guide_rate.Rdata` (loaded by `create_dataset.R`), `data/final_dataset_euro.Rdata`,
+`data/bonds_with_min.Rdata`. No script in the repo built any of them, so a clean
+rebuild errored and the trace back to raw input dead-ended.
+
+**`guide_rate.Rdata` recovered.** The producer was `code/guiderate.R`, deleted in
+commit `3f6709f` ("cleaning up code for submission", 2025-10-02) while the
+`.Rdata` stayed in the repo. Restored as
+`code/creating dataset/create_guide_rate_variable.R`, repointed from the old
+`~/ec_project/data/` path to this project, with the legacy tail dropped (it
+rebuilt `final_dataset_euro_plus_guide` and wrote presentation figures, both
+obsolete now that `create_dataset.R` does the pooling). Inputs `EP.csv` and
+`Council.csv` were located in `data/old_data/`. Added a key-uniqueness assertion,
+since `create_dataset.R` now joins this many-to-one.
+
+The guiding rate is the average of a state's Council voting weight share, EP seat
+share, and population share; `diff_iv` is its Commission share minus that
+benchmark, plus four lags.
+
+*Regeneration is faithful but not byte-identical*, for two traceable reasons,
+neither a restoration error:
+- Greece now has ysp 2022.5 and 2023 rows. The UK/Greece filter removed in item 2
+  **was** live when `population.csv` still ran past 2022; it only became a no-op
+  later when the fetch was narrowed to `end_date = 2022`.
+- 36 rows shift by exactly 0.1–0.3 because the World Bank has revised its
+  historical population estimates since the original fetch, and `round(rate, 1)`
+  turns a sub-0.05% share change into a visible jump. **The rounding makes this
+  variable brittle to trivial input changes** — worth knowing.
+
+Main table and summary statistics are byte-identical (neither uses `diff_iv`).
+The two marginal-effects figures do depend on it and were regenerated.
+
+Still open: `final_dataset_euro.Rdata` and `bonds_with_min.Rdata`, both consumed
+only by appendix/bonds code.
 
 ### 12. Every table is hand-pasted into LaTeX — **IN PROGRESS**
 
@@ -347,6 +376,25 @@ Note: the named `overlapping_titles` literal itself is byte-identical everywhere
 it appears — it has not drifted. The problem is that this script doesn't use it.
 
 *Fix:* define the sample once in `create_dataset.R`.
+
+### 19. Two paper figures were never committed to Overleaf — **DONE**
+
+Found while regenerating guide-rate figures. `overleaf/.gitignore:2` ignores
+`*.pdf` as a build artifact, which also caught the figures. Ten images predate
+the rule and are tracked; four newer ones were not, and **two of those are
+`\includegraphics`'d by the paper** — `gam_marginal_effects_plot.pdf` and
+`alt_outcome_plot.pdf`, each with **zero commits** in the Overleaf repo. They
+were therefore absent from the project on Overleaf while present on this machine.
+
+The same rule was hiding uncommitted modifications to `main_plot.pdf` and
+`oster_plot.pdf`, which never showed up in `git status`.
+
+*Fix:* `!images/*.pdf` exception added, all figures committed, and the
+data-dependent ones regenerated first so the committed versions match the
+rebuilt panel.
+
+*Still stale:* `randomization_coefficient.pdf` — regenerating it means re-running
+10,000 `feols` fits (`randomization_inference.R`), not done here.
 
 ### 18. Theil's U analysis deleted — **DONE**
 
