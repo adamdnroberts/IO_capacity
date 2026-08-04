@@ -7,6 +7,7 @@ library(tidyr)
 library(data.table)
 
 datapath = "~/EU_Capacity/data/"
+tablepath = "~/EU_Capacity/overleaf/tables/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -264,20 +265,28 @@ tex_lines <- c(
   "\\midrule",
   make_panel("Panel C: Excluding EOY Forecasts", s$C_rev, s$C_exp, s$C_all),
   "\\midrule \\midrule",
-  "\\multicolumn{4}{l}{Clustered (country) standard-errors in parentheses}\\\\",
+  "\\multicolumn{4}{l}{Clustered (state) standard-errors in parentheses}\\\\",
   "\\multicolumn{4}{l}{Fixed effects: econ.\\ indicator, period, state, forecast year}\\\\",
   "\\multicolumn{4}{l}{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}\\\\",
   "\\end{tabular}",
   "\\par\\endgroup",
-  "\\caption{Effect of National Expertise on Member State Forecast Accuracy}",
-  "\\label{tab:main_model}",
+  # Caption and label previously duplicated the main results table's, so both
+  # tables carried \label{tab:main_model}. LaTeX would have reported "Label
+  # multiply defined" and every \ref{tab:main_model} would have resolved to
+  # whichever came second. The appendix had been hand-corrected to
+  # tab:epu_model; the script had not.
+  paste0(
+    "\\caption{Effect of National Expertise on Member State Forecast ",
+    "Accuracy, Controlling for Economic Policy Uncertainty}"
+  ),
+  "\\label{tab:epu_model}",
   "\\end{table}"
 )
 
 tex_table <- paste(tex_lines, collapse = "\n")
 cat(tex_table, "\n")
 
-# writeLines(
-#   tex_table,
-#   "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/tables/main_table.tex"
-# )
+# NB: this previously pointed at main_table.tex, which would have overwritten
+# the main results table had it ever been uncommented.
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(tex_table, paste0(tablepath, "epu_table.tex"))

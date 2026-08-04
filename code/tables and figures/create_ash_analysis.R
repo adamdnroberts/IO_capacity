@@ -7,6 +7,11 @@ library(broom)
 
 datapath <- "~/EU_capacity/data/"
 
+# Minimum observations for a per-title regression. Referenced by both the
+# skip condition and the summary message below: the summary previously said
+# "< 50" while the condition enforced 5.
+MIN_TITLE_OBS <- 5
+
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
 
@@ -68,9 +73,9 @@ run_title_ash <- function(data, side_filter, verbose = TRUE) {
     current_title <- all_titles[i]
     sub_data <- sub[sub$title == current_title, ]
 
-    if (nrow(sub_data) < 5) {
+    if (nrow(sub_data) < MIN_TITLE_OBS) {
       if (verbose) {
-        cat("  SKIP (< 5 obs):", current_title, "\n")
+        cat(sprintf("  SKIP (< %d obs):", MIN_TITLE_OBS), current_title, "\n")
       }
       n_too_few <- n_too_few + 1
       next
@@ -116,7 +121,7 @@ run_title_ash <- function(data, side_filter, verbose = TRUE) {
 
   if (verbose) {
     cat("\nSummary:\n")
-    cat("  Too few obs (< 50):     ", n_too_few, "\n")
+    cat(sprintf("  Too few obs (< %d):     ", MIN_TITLE_OBS), n_too_few, "\n")
     cat("  ecfin not estimated:    ", n_no_ecfin, "\n")
     cat("  Model failed:           ", n_failed, "\n")
     cat(

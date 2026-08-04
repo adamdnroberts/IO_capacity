@@ -186,8 +186,20 @@ c2_new <- lapply(c2, function(x) {
 staff_c3 <- do.call(rbind.fill, c3_new)
 staff_c3$date <- as.Date(staff_c3$date)
 
-iso_alpha2 <- read.csv("~/EU_capacity/raw/Staff/iso_alpha2.csv")
+# na.strings = "" because Namibia's ISO 3166-1 alpha-2 code is literally NA.
+# read.csv's default would turn that key into a missing value, and base merge()
+# matches NA to NA -- so any staff row whose code failed to parse would be
+# assigned "Namibia" rather than falling through to the "Other" bucket.
+iso_alpha2 <- read.csv(
+  "~/EU_capacity/raw/Staff/iso_alpha2.csv",
+  na.strings = ""
+)
 iso_alpha3 <- read.csv("~/EU_capacity/raw/Staff/iso_alpha3.csv")
+
+stopifnot(
+  !anyNA(iso_alpha2[[1]]),
+  !anyDuplicated(iso_alpha2[[1]])
+)
 
 staff_c3_names <- merge(
   x = staff_c3,

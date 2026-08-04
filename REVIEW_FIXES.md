@@ -463,7 +463,7 @@ appendix, not the response to reviewers — and nothing `\includegraphics`ed
 (`first(true)`, item 8), so it was deleted at the author's direction along with
 its two orphaned PDFs. Recoverable from git history.
 
-### 17. Raw `ecfin` is missing for a third of the panel's vintages — **OPEN**
+### 17. Raw `ecfin` is missing for a third of the panel's vintages — **WONTFIX**
 
 Found while investigating item 3. Countries with a non-missing raw `ecfin`:
 
@@ -481,27 +481,51 @@ This is presumably why `ecfin_int` / `ecfin_spline` exist as robustness checks
 (item 14 concerns how they are built). But the main specification's sample is
 being defined by staff-bulletin availability in a way no reader could infer.
 
-*Suggested:* report the effective number of vintages in the table notes, and
-state explicitly that identification comes from the periods with staff data.
+**Decision: no change.** Coverage is already visible in the paper. Figure
+`fig:ecfin_nat` plots `geom_col(ysp, ecfin)` faceted by country, so periods
+without staff data appear as absent bars, and the surrounding text describes the
+2011-2014 versus 2015-2023 collection difference. Recorded here so the gap in
+the estimation sample is documented for anyone reading the code.
 
-### 16. Smaller items — **OPEN**
+### 16. Smaller items — **DONE**
 
-- `create_ash_analysis.R:119` prints `"< 50"` where the threshold at line 71 is
-  `5`. Also uses `log(err_sq + 1e-6)` where every other script uses `log(err_sq)`.
-- `create_EPU_model_table.R:273` duplicates `\label{tab:main_model}` from
-  `create_main_result_table.R:268`.
-- `create_ECFIN_nationality_figure.R:3-6` loads `Commission_nationalities.Rdata`
-  (contains `staff`) then plots `staff_nat`. Errors from a clean session.
+- `create_ash_analysis.R` printed `"< 50"` where the threshold was `5`. Both the
+  condition and the two messages now derive from one `MIN_TITLE_OBS` constant.
+  ASH appears in no `.tex` file, so this was cosmetic. Its `log(err_sq + 1e-6)`
+  is left alone -- also unpublished.
+- **`create_EPU_model_table.R` duplicated `\label{tab:main_model}`.** This one
+  mattered: the EPU table *is* published (appendix `tab:epu_model`), and the
+  appendix had been hand-corrected while the script had not. Regenerating would
+  have produced two tables with the same label, so every `ef{tab:main_model}`
+  would have resolved to whichever came second. Label and caption fixed, table
+  wired to `overleaf/tables/epu_table.tex`, appendix now `\input`s it. Its
+  pasted numbers were stale (N 5,038 against a current 5,434). Its commented-out
+  `writeLines` also pointed at **`main_table.tex`** -- uncommenting it would have
+  overwritten the main results table.
+- `create_ECFIN_nationality_figure.R` loaded `Commission_nationalities.Rdata`
+  (which holds `staff` and has no `ysp` column) then plotted `staff_nat`.
+  **Confirmed**: the old version fails with `object 'staff_nat' not found` from a
+  clean session, so the published figure was reproducible only by accident of run
+  order. Now loads `staff_nat.Rdata`; the 2014.75 magic number is named
+  `CONTRACT_STAFF_ADDED`.
 - `create_result_excluding_covid_table.R:29-36` mixes target-year and vintage
   clauses; still retains 2022-target forecasts made in 2022.
-- `create_bonds_dataset.R:72-81` — all five shift column names are wrong
-  (`n = -1:3` with `type = "lag"` makes `yield_lag1` a lead, etc.).
-- `raw/Staff/iso_alpha2.csv:156` is unquoted `NA,"Namibia"` — read as a missing
-  key, and base `merge()` matches `NA` to `NA`.
-- `create_population_variable.R:74-79` — the "exclude UK and Greece after 2022"
-  filter is a no-op; max ysp is already 2022.0.
+- `create_bonds_dataset.R` — all five shift column names were wrong (`n = -1:3`
+  with `type = "lag"` made `yield_lag1` a lead, `change_pct_lag1` plain `yield`,
+  and the "lead" columns lags). Each now computes what its name says. Verified
+  the bonds table is unchanged, confirming nothing downstream read them.
+- `raw/Staff/iso_alpha2.csv:156` is unquoted `NA,"Namibia"` -- Namibia's real
+  ISO alpha-2 code. Now read with `na.strings = ""` plus assertions on key
+  non-missingness and uniqueness, so an unparsed staff code falls through to
+  "Other" instead of being matched to Namibia. Verified behaviour-neutral: the
+  regenerated `staff` object is `identical()` to the previous one.
+- `create_population_variable.R` -- the no-op UK/Greece filter: resolved in
+  item 2.
 - `did.R`, `croatia_synth.R`, `amelia_analysis.R` are documented in CLAUDE.md as
   pipeline analyses but contain no estimator / do not parse. `croatia_synth.R`
   and several others read from `~/ecb_project/`, a different project.
-- Figures write to two divergent trees (`overleaf/images/` and a Dropbox path)
-  whose contents differ by five PDFs, three of which the appendix includes.
+- Figures wrote to two divergent trees. **No Dropbox path remains in `code/`**:
+  `create_ECFIN_nationality_figure.R`, `representation_grid_plot.R` and
+  `create_interaction_plots.R` now write to `overleaf/images/`. The two published
+  figures affected (`ECFIN_Nationality_Plot.pdf`, `Representation_Plot.png`) were
+  regenerated to the correct location.

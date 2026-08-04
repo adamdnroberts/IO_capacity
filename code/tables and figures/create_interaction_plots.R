@@ -178,7 +178,7 @@ interaction_results_gdp <- ggplot(
 print(interaction_results_gdp)
 
 ggsave(
-  filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/images/gdp_quartile_plot.pdf",
+  filename = "~/EU_capacity/overleaf/images/gdp_quartile_plot.pdf",
   plot = interaction_results_gdp,
   width = 6,
   height = 4
@@ -281,7 +281,7 @@ interaction_results_gdppc <- ggplot(
 print(interaction_results_gdppc)
 
 ggsave(
-  filename = "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/images/gdppc_quartile_plot.pdf",
+  filename = "~/EU_capacity/overleaf/images/gdppc_quartile_plot.pdf",
   plot = interaction_results_gdppc,
   width = 6,
   height = 4

@@ -69,14 +69,18 @@ bonds$month <- month(ymd(bonds$date))
 bonds$week <- isoweek(ymd(bonds$date))
 bonds$day <- day(ymd(bonds$date))
 
-setDT(bonds)[,
-  c(
-    "yield_lag1",
-    "change_pct_lag1",
-    "change_pct_lead1",
-    "change_pct_lead2",
-    "change_pct_lead3"
-  ) := shift(yield, n = -1:3, type = "lag"),
+# Every one of these five columns previously held a shift of `yield`, and none
+# matched its own name: `n = -1:3` is c(-1, 0, 1, 2, 3), so with type = "lag"
+# the column called yield_lag1 was a *lead*, change_pct_lag1 was `yield`
+# unshifted, and the three "lead" columns were lags 1-3 of `yield`. Nothing
+# downstream reads them -- create_bonds_analysis_table.R recomputes yield_lag1
+# itself -- but they were saved into bonds.Rdata for anyone to pick up.
+setDT(bonds)
+bonds[, yield_lag1 := shift(yield, 1L, type = "lag"), by = country]
+bonds[, change_pct_lag1 := shift(change_pct, 1L, type = "lag"), by = country]
+bonds[,
+  c("change_pct_lead1", "change_pct_lead2", "change_pct_lead3") :=
+    shift(change_pct, 1:3, type = "lead"),
   by = country
 ]
 
