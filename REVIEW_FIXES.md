@@ -157,12 +157,32 @@ specification), `data/final_dataset_euro.Rdata`, `data/bonds_with_min.Rdata`.
 No script in the repo builds any of them, so a clean rebuild errors and the
 trace from main table back to raw input dead-ends.
 
-### 12. Every table is hand-pasted into LaTeX — **OPEN**
+### 12. Every table is hand-pasted into LaTeX — **IN PROGRESS**
 
 The `writeLines(...)` call is commented out in all six table scripts; they
-`cat()` to console instead, and `overleaf/main.tex` contains literal `tabular`
+`cat()` to console instead, and the `.tex` files contain literal `tabular`
 blocks rather than `\input{}`. Nothing forces the paper to update when a
 specification changes.
+
+**Main table done.** `create_main_result_table.R` now writes
+`overleaf/tables/main_table.tex` (via a new `tablepath` variable, with
+`dir.create`), and `main_sage_template.tex:262` reads it with `\input`.
+Verified: generated output is structurally identical to the previously pasted
+block, and `pdflatex main_sage_template.tex` compiles clean.
+
+Two content fixes made at the same time, to match the pasted block that was
+actually in the paper:
+- added the `\resizebox{\linewidth}{!}{%` … `}` wrapper the script was missing
+- **citation key corrected** from `baker2016measuring` to `baker_measuring_2016`.
+  Only the latter exists in the `.bib`, so the script's version would have
+  rendered as `[?]`. The pasted block was right and the script was wrong —
+  evidence of how far the two had drifted.
+- footer wording aligned to the paper: "Clustered (state)" not "(country)".
+
+Still open: `create_summary_stats_table.R`, `create_oster_sensitivity_table.R`,
+`create_alt_outcome_result_table.R`, `create_EPU_model_table.R`,
+`create_bonds_analysis_table.R`, and the same pasted block in `main.tex`
+(which is a separate file from `main_sage_template.tex` and still has it inline).
 
 ### 13. No master script — **OPEN**
 

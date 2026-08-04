@@ -7,6 +7,7 @@ library(tidyr)
 library(data.table)
 
 datapath = "~/EU_Capacity/data/"
+tablepath = "~/EU_Capacity/overleaf/tables/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -227,6 +228,7 @@ tex_lines <- c(
   "\\begin{table}[]",
   "\\begingroup",
   "\\centering",
+  "\\resizebox{\\linewidth}{!}{%",
   "\\begin{tabular}{lcccc}",
   "\\tabularnewline",
   "\\midrule \\midrule",
@@ -259,11 +261,12 @@ tex_lines <- c(
     s$C_epu
   ),
   "\\midrule \\midrule",
-  "\\multicolumn{5}{l}{Clustered (country) standard-errors in parentheses}\\\\",
+  "\\multicolumn{5}{l}{Clustered (state) standard-errors in parentheses}\\\\",
   "\\multicolumn{5}{l}{Fixed effects: econ.\\ indicator, period, state, forecast year}\\\\",
   "\\multicolumn{5}{l}{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}\\\\",
-  "\\multicolumn{5}{p{14cm}}{$\\dagger$ Column (4) adds EPU index \\citep{baker2016measuring} as a control; sample restricted to 14 EU member states with available EPU data.}\\\\",
-  "\\end{tabular}",
+  "\\multicolumn{5}{p{14cm}}{$\\dagger$ Column (4) adds EPU index \\citep{baker_measuring_2016} as a control; sample restricted to 14 EU member states with available EPU data.}\\\\",
+  "\\end{tabular}%",
+  "}",
   "\\par\\endgroup",
   "\\caption{Effect of National Expertise on Member State Forecast Accuracy}",
   "\\label{tab:main_model}",
@@ -273,7 +276,5 @@ tex_lines <- c(
 tex_table <- paste(tex_lines, collapse = "\n")
 cat(tex_table, "\n")
 
-# writeLines(
-#   tex_table,
-#   "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/tables/main_table.tex"
-# )
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(tex_table, paste0(tablepath, "main_table.tex"))
