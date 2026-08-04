@@ -150,7 +150,7 @@ orphans survive into `dfpg`. They pass `!(title %in% vars_to_exclude)` because
 *Fix:* `left_join(..., relationship = "many-to-one")` plus a key assertion
 before `save`.
 
-### 6. Summary statistics computed at the wrong key — **OPEN**
+### 6. Summary statistics computed at the wrong key — **DONE**
 
 `code/tables and figures/create_summary_stats_table.R:32`
 
@@ -161,7 +161,37 @@ One- and two-year-ahead errors are substantially larger, so the table understate
 the estimation sample's dispersion. `dfpg_cy` is also taken before any EU
 restriction, so the GDP row includes non-members.
 
-*Fix:* compute descriptives on the exact object passed to `feols`.
+*Verified:* `distinct()` kept 22,228 rows, **every one of them `py = 0`**.
+
+Two problems were compounding, pulling in **opposite directions**:
+1. the `py` bug understated the errors (nowcasts only);
+2. the sample bug overstated them far more -- `dfpg_err`/`dfpg_cy` were taken
+   from the whole panel, so they included Norway, Switzerland, the US and Japan,
+   which never enter any regression (item 7). Their absolute errors are enormous.
+
+The second dominates. Published squared-error SD was 59,422 against 1,725 in the
+sample actually estimated on, and the maximum 4,408,278 against 75,418 -- the SD
+was 34x too large.
+
+*Fix:* descriptives now computed on the rows entering the pooled Panel A model
+(`rev|exp`, all model variables finite). Country-year covariates are one row per
+`country x ysp` **within that sample**. N is now 11,413, which **exactly matches
+column (3), Panel A of the main table** -- the script asserts and prints this.
+
+Per-variable N was previously 416 / 8,364 / 8,354 / 608 / 725 / 605 / 339,
+each variable carrying its own missingness across the full panel; it is now 444
+for every country-year variable and 11,413 for the error variables, from one
+coherent sample. Only EPU legitimately differs (212), being available for 14
+member states.
+
+Wired to file: writes `overleaf/tables/summary_stats.tex` with the
+`esizebox{	extwidth}` wrapper matching the paper, and
+`main_sage_template.tex:211` now `\input`s it. Template compiles clean.
+
+Note for the prose pass: line 207 says "the number of observations varies across
+variables with data availability", which is now largely untrue -- only EPU
+differs. That line also contains a typo, "a standard deviation **fo** roughly
+20".
 
 ### 7. Estimation sample defined by accident — **OPEN**
 

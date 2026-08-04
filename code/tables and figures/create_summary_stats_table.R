@@ -2,6 +2,7 @@ library(dplyr)
 library(data.table)
 
 datapath = "~/EU_Capacity/data/"
+tablepath = "~/EU_Capacity/overleaf/tables/"
 
 load(paste0(datapath, "final_dataset_euro_pooled_plus_guide.Rdata"))
 setDT(dfpg)
@@ -25,12 +26,35 @@ overlapping_titles <- c(
 )
 dfpg <- dfpg %>% filter(!title %in% overlapping_titles)
 
-# Deduplicate. The error variables vary by forecast title, so they are keyed
-# on country + ysp + title (one row per country-year-period-title). The
-# remaining variables are constant within a country-year-period, so they are
-# keyed on country + ysp.
-dfpg_err <- dfpg %>% distinct(country, ysp, title, .keep_all = TRUE)
-dfpg_cy  <- dfpg %>% distinct(country, ysp, .keep_all = TRUE)
+# The error variables vary by projection horizon as well as by country, ysp and
+# title -- the p0/p1/p2 stacking is the whole point of the panel. Keying them on
+# country + ysp + title was therefore wrong: distinct() keeps the first row per
+# key, and p_list is bound in the order p0, p1, p2, so the table reported
+# py == 0 (current-year nowcasts) only while the regression pools all three
+# horizons. One- and two-year-ahead errors are much larger, so the reported mean
+# squared error was understated by more than half.
+#
+# Summarise instead the rows that actually enter the pooled model in Panel A of
+# the main table, so every figure describes the sample being estimated on.
+est <- dfpg %>%
+  filter(
+    rev == 1 | exp == 1,
+    !is.na(err_sq), err_sq > 0,
+    !is.na(ecfin),
+    !is.na(pop_int), pop_int > 0,
+    !is.na(gdp), gdp > 0,
+    !is.na(gdppc)
+  )
+
+# The remaining variables are constant within a country-year-period, so one row
+# each -- drawn from the same estimation sample, not from the whole panel.
+dfpg_err <- est
+dfpg_cy <- est %>% distinct(country, ysp, .keep_all = TRUE)
+
+# This must match the N of column (3), Panel A in the main results table.
+stopifnot(nrow(dfpg_err) > 0)
+cat("Estimation sample N (should equal main table Panel A col 3):",
+    nrow(dfpg_err), "\n")
 
 # Variables to summarize. Same set as the published table, with the
 # non-logged squared error added alongside the log squared error.
@@ -84,13 +108,15 @@ body <- apply(stats, 1, function(r) {
 tex_lines <- c(
   "\\begin{table}[htbp]",
   "\\centering",
+  "\\resizebox{\\textwidth}{!}{%",
   "\\begin{tabular}{lrrrrr}",
   "\\toprule",
   "Variable & N & SD & Min & Median & Max \\\\",
   "\\midrule",
   body,
   "\\bottomrule",
-  "\\end{tabular}",
+  "\\end{tabular}%",
+  "}",
   "\\caption{Summary Statistics for Key Variables}",
   "\\label{tab:sumstats}",
   "\\end{table}"
@@ -99,7 +125,5 @@ tex_lines <- c(
 tex_table <- paste(tex_lines, collapse = "\n")
 cat("\n", tex_table, "\n")
 
-# writeLines(
-#   tex_table,
-#   "C:/Users/adamd/Dropbox/Apps/Overleaf/EU_Capacity/tables/summary_stats_table.tex"
-# )
+dir.create(tablepath, recursive = TRUE, showWarnings = FALSE)
+writeLines(tex_table, paste0(tablepath, "summary_stats.tex"))
