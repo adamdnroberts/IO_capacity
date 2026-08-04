@@ -122,7 +122,7 @@ tex_lines <- c(
   "\\tabularnewline",
   "\\midrule \\midrule",
   paste0(
-    "Controls ommitted $\\hat{\\beta}$ (FE only)     & ",
+    "Controls omitted $\\hat{\\beta}$ (FE only)     & ",
     fmt3(pull(res_delta, "Uncontrolled Coefficient")),
     "\\\\"
   ),
